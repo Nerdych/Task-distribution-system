@@ -1,7 +1,7 @@
 // Core
 import dotenv from 'dotenv';
 import { CorsOptions } from 'cors';
-import { Dialect, PoolOptions, Sequelize } from 'sequelize/dist';
+import { Dialect, PoolOptions } from 'sequelize/dist';
 
 dotenv.config();
 
