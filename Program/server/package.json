@@ -1,40 +1,40 @@
 {
-	"name": "task-distribution-system",
-	"version": "1.0.0",
-	"description": "server for diplom task-distribution-system",
-	"main": "index.ts",
-	"scripts": {
-		"watch": "tsc",
-		"dev": "nodemon src/index.ts",
-	},
-		"start": "ts-node src/index.ts"
-	"keywords": [
-		"task-distribution-system",
-		"diplom",
-		"backend",
-		"server"
-	],
-	"author": "Nikita Prodan <sa_vvk@mail.ru>",
-	"license": "ISC",
-	"devDependencies": {
-		"@types/express": "^4.17.13",
-		"@types/node": "^17.0.8",
-		"@types/sequelize": "^4.28.11",
-		"babel-watch": "^7.7.0",
-		"nodemon": "^2.0.15",
-		"ts-node": "^10.4.0",
-		"typescript": "^4.5.4"
-	},
-	"dependencies": {
-		"apollo-server-express": "^3.6.1",
-		"cors": "^2.8.5",
-		"dotenv": "^10.0.0",
-		"express": "^4.17.2",
-		"graphql": "^15.8.0",
-		"pg": "^8.7.1",
-		"pg-hstore": "^2.3.4",
-		"sequelize": "^6.12.5",
-		"sequelize-typescript": "^2.1.2",
-		"type-graphql": "^1.1.1"
-	}
+  "name": "task-distribution-system",
+  "version": "1.0.0",
+  "description": "server for diplom task-distribution-system",
+  "main": "index.ts",
+  "scripts": {
+    "watch": "tsc",
+    "dev": "nodemon src/index.ts"
+  },
+  "start": "ts-node src/index.ts",
+  "keywords": [
+    "task-distribution-system",
+    "diplom",
+    "backend",
+    "server"
+  ],
+  "author": "Nikita Prodan <sa_vvk@mail.ru>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.8",
+    "@types/sequelize": "^4.28.11",
+    "babel-watch": "^7.7.0",
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "apollo-server-express": "^3.6.1",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "graphql": "^15.8.0",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.12.5",
+    "sequelize-typescript": "^2.1.2",
+    "type-graphql": "^1.1.1"
+  }
 }

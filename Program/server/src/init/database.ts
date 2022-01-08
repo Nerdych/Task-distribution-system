@@ -25,11 +25,11 @@ import {UserOrganization} from "../models/UserOrganization";
 import {Message} from "../models/Message";
 
 export const db: Sequelize = new Sequelize({
-    database: dbConfig.DB,
-    username: dbConfig.USERNAME,
-    password: dbConfig.PASSWORD,
-    host: dbConfig.HOST,
-    port: dbConfig.PORT,
+    database: dbConfig.database,
+    username: dbConfig.username,
+    password: dbConfig.password,
+    host: dbConfig.host,
+    port: dbConfig.port,
     dialect: dbConfig.dialect,
     pool: dbConfig.pool,
     models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, Role, Right, RoleRight, LabelCard, UserLabel, UserRole, UserDesk, UserOrganization, Message],

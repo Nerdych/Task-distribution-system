@@ -17,9 +17,9 @@ export class LabelCard extends Model<LabelCard, LabelCardCreationAttrs> {
 
     @ForeignKey(() => Label)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'label_id_card_id_unique'})
-    label_id: number
+    label_id!: number
 
     @ForeignKey(() => Card)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'label_id_card_id_unique'})
-    card_id: number
+    card_id!: number
 }

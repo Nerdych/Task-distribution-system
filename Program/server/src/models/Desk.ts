@@ -1,5 +1,6 @@
 // Core
 import {Column, Table, Model, DataType, ForeignKey, BelongsTo, HasMany, BelongsToMany} from 'sequelize-typescript';
+import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
 import {ColumnTable} from './Column';
@@ -13,14 +14,18 @@ interface DeskCreationAttrs {
     organization_id: number;
 }
 
+@ObjectType()
 @Table({tableName: 'desks', timestamps: false})
 export class Desk extends Model<Desk, DeskCreationAttrs> {
+    @Field(() => ID)
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id!: number;
 
+    @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false})
     name!: string;
 
+    @Field(() => Int)
     @ForeignKey(() => Organization)
     @Column({type: DataType.INTEGER, allowNull: false})
     organization_id!: number;
@@ -31,9 +36,9 @@ export class Desk extends Model<Desk, DeskCreationAttrs> {
     @HasMany(() => ColumnTable)
     columns: ColumnTable[];
 
-    @BelongsToMany(() => User, () => UserDesk)
-    users: Array<User & { UserDesk: UserDesk }>;
-
     @HasMany(() => Message)
     messages: Message[];
+
+    @BelongsToMany(() => User, () => UserDesk)
+    users: Array<User & { UserDesk: UserDesk }>;
 }

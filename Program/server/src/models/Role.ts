@@ -1,5 +1,6 @@
 // Core
 import {Column, Table, Model, DataType, ForeignKey, BelongsTo, HasMany, BelongsToMany} from 'sequelize-typescript';
+import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
 import {Organization} from './Ogranization';
@@ -13,14 +14,18 @@ interface RoleCreationAttrs {
     organization_id: number;
 }
 
+@ObjectType()
 @Table({tableName: 'roles', timestamps: false})
 export class Role extends Model<Role, RoleCreationAttrs> {
+    @Field(() => ID)
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id!: number;
 
+    @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false, unique: 'name_organization_id_unique'})
     name!: string;
 
+    @Field(() => Int)
     @ForeignKey(() => Organization)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'name_organization_id_unique'})
     organization_id!: number;
