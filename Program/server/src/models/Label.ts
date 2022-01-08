@@ -33,9 +33,11 @@ export class Label extends Model<Label, LabelCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false})
     organization_id!: number;
 
+    @Field(() => Organization)
     @BelongsTo(() => Organization)
     organization: Organization;
 
+    @Field(() => [Card], {nullable: true})
     @BelongsToMany(() => Card, () => LabelCard)
     cards: Array<Card & { LabelCard: LabelCard }>;
 }

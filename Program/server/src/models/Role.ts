@@ -30,12 +30,15 @@ export class Role extends Model<Role, RoleCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'name_organization_id_unique'})
     organization_id!: number;
 
+    @Field(() => Organization)
     @BelongsTo(() => Organization)
     organization: Organization;
 
+    @Field(() => [Right], {nullable: true})
     @BelongsToMany(() => Right, () => RoleRight)
     rights: Array<Right & {RoleRight: RoleRight}>;
 
+    @Field(() => [User], {nullable: true})
     @BelongsToMany(() => User, () => UserRole)
     users: Array<User & { UserRole: UserRole }>;
 }

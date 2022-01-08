@@ -21,6 +21,7 @@ export class Right extends Model<Right, RightCreationAttrs> {
     @Column({type: DataType.TEXT, allowNull: false, unique: true})
     name!: string;
 
+    @Field(() => Role, {nullable: true})
     @BelongsToMany(() => Role, () => RoleRight)
-    roles: Array<Role & {RoleRight: RoleRight}>;
+    roles: Array<Role & { RoleRight: RoleRight }>;
 }

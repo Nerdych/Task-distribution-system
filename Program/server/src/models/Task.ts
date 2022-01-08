@@ -1,6 +1,6 @@
 // Core
 import {Column, Table, Model, DataType, ForeignKey, BelongsTo} from 'sequelize-typescript';
-import {Field, ID, ObjectType} from "type-graphql";
+import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
 import {List} from './List';
@@ -25,11 +25,12 @@ export class Task extends Model<Task, TaskCreationAttrs> {
     @Column({type: DataType.BOOLEAN, allowNull: false, defaultValue: false})
     is_checked!: boolean;
 
-    @Field(() => String)
+    @Field(() => Int)
     @ForeignKey(() => List)
     @Column({type: DataType.INTEGER, allowNull: false})
     list_id!: number;
 
+    @Field(() => List)
     @BelongsTo(() => List)
     list: List;
 }

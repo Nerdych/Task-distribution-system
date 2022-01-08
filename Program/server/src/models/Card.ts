@@ -45,19 +45,24 @@ export class Card extends Model<Card, CardCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false})
     column_id!: number;
 
-    @BelongsTo(() => ColumnTable)
-    column: ColumnTable;
-
+    @Field(() => ColumnTable)
     @ForeignKey(() => User)
     @Column({type: DataType.INTEGER, allowNull: false})
     user_id!: number;
 
+    @Field(() => ColumnTable)
+    @BelongsTo(() => ColumnTable)
+    column: ColumnTable;
+
+    @Field(() => User)
     @BelongsTo(() => User)
     user: User;
 
+    @Field(() => [List], {nullable: true})
     @HasMany(() => List)
     lists: List[];
 
+    @Field(() => [Label], {nullable: true})
     @BelongsToMany(() => Label, () => LabelCard)
-    cards: Array<Label & { LabelCard: LabelCard }>;
+    labels: Array<Label & { LabelCard: LabelCard }>;
 }

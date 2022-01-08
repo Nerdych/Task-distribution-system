@@ -12,6 +12,7 @@ import {UserDesk} from "./UserDesk";
 import {Organization} from "./Ogranization";
 import {UserOrganization} from "./UserOrganization";
 import {Message} from "./Message";
+import {Comment} from "./Comment";
 
 interface UserCreationAttrs {
     name: string;
@@ -53,20 +54,27 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.TEXT, allowNull: false})
     password!: string;
 
+    @Field(() => [Message], {nullable: true})
+    @HasMany(() => Message)
+    messages: Message[];
+
+    @Field(() => [Comment], {nullable: true})
+    @HasMany(() => Comment)
+    comments: Comment[];
+
     @Field(() => [Label], {nullable: true})
     @BelongsToMany(() => Label, () => UserLabel)
     labels: Array<Label & { UserLabel: UserLabel }>;
 
+    @Field(() => [Role], {nullable: true})
     @BelongsToMany(() => Role, () => UserRole)
     roles: Array<Role & { UserRole: UserRole }>;
 
+    @Field(() => [Desk], {nullable: true})
     @BelongsToMany(() => Desk, () => UserDesk)
     desks: Array<Desk & { UserDesk: UserDesk }>;
 
     @Field(() => [Organization], {nullable: true})
     @BelongsToMany(() => Organization, () => UserOrganization)
     organizations: Array<Organization & { UserOrganization: UserOrganization }>;
-
-    @HasMany(() => Message)
-    messages: Message[];
 }

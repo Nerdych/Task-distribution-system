@@ -27,9 +27,11 @@ export class List extends Model<List, ListCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false})
     card_id!: number;
 
+    @Field(() => Card)
     @BelongsTo(() => Card)
     card: Card;
 
+    @Field(() => [Task], {nullable: true})
     @HasMany(() => Task)
     tasks: Task[];
 }

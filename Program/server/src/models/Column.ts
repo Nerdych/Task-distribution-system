@@ -1,9 +1,9 @@
 // Core
 import {Column, Table, Model, DataType, ForeignKey, BelongsTo, HasMany} from 'sequelize-typescript';
-import {Card} from './Card';
 import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
+import {Card} from './Card';
 import {Desk} from './Desk';
 
 interface ColumnTableCreationAttrs {
@@ -27,9 +27,11 @@ export class ColumnTable extends Model<ColumnTable, ColumnTableCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false})
     desk_id!: number;
 
+    @Field(() => Desk)
     @BelongsTo(() => Desk)
     desk: Desk;
 
+    @Field(() => [Card], {nullable: true})
     @HasMany(() => Card)
     cards: Card[];
 }

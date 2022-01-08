@@ -30,9 +30,11 @@ export class Desk extends Model<Desk, DeskCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false})
     organization_id!: number;
 
+    @Field(() => Organization)
     @BelongsTo(() => Organization)
     organization: Organization;
 
+    @Field(() => [ColumnTable], {nullable: true})
     @HasMany(() => ColumnTable)
     columns: ColumnTable[];
 

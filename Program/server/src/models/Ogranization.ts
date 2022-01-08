@@ -28,6 +28,7 @@ export class Organization extends Model<Organization, OrganizationCreationAttrs>
     @Column({type: DataType.TEXT, unique: true})
     link_to_invite?: string;
 
+    @Field(() => [Desk], {nullable: true})
     @HasMany(() => Desk)
     desks: Desk[];
 
@@ -35,6 +36,7 @@ export class Organization extends Model<Organization, OrganizationCreationAttrs>
     @HasMany(() => Label)
     labels: Label[];
 
+    @Field(() => [User])
     @BelongsToMany(() => User, () => UserOrganization)
     users: Array<User & { UserOrganization: UserOrganization }>;
 }

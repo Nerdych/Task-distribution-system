@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, ForeignKey, DataType} from 'sequelize-typescript';
+import {Column, Table, Model, ForeignKey, DataType, BelongsTo} from 'sequelize-typescript';
 import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
@@ -31,10 +31,18 @@ export class Message extends Model<Message, MessageCreationAttrs> {
     @Field(() => Int)
     @ForeignKey(() => Desk)
     @Column({type: DataType.INTEGER, allowNull: false})
-    desk_id: number
+    desk_id!: number
 
     @Field(() => Int)
     @ForeignKey(() => User)
     @Column({type: DataType.INTEGER, allowNull: false})
-    user_id: number
+    user_id!: number
+
+    @Field(() => Desk)
+    @BelongsTo(() => Desk)
+    desk: Desk;
+
+    @Field(() => User)
+    @BelongsTo(() => User)
+    user: User;
 }

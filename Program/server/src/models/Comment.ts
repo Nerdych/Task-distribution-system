@@ -38,9 +38,11 @@ export class Comment extends Model<Comment, CommentCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false})
     user_id!: number;
 
+    @Field(() => Card)
     @BelongsTo(() => Card)
     card: Card;
 
+    @Field(() => User)
     @BelongsTo(() => User)
     user: User;
 }
