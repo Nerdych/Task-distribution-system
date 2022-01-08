@@ -13,10 +13,16 @@ import {db} from './init/database';
 import {apolloServer, app} from './init/server';
 
 import {User} from './models/User';
-import {Organization} from './models/Ogranization';
 import {Desk} from './models/Desk';
+import {Organization} from './models/Ogranization';
 import {ColumnTable} from './models/Column';
 import {Card} from './models/Card';
+import {Comment} from "./models/Comment";
+import {Label} from "./models/Label";
+import {Role} from "./models/Role";
+import {Right} from "./models/Right";
+import {RoleRight} from "./models/RoleRight";
+import {Message} from "./models/Message";
 
 const start = async () => {
     try {
@@ -38,13 +44,13 @@ const start = async () => {
         // parse requests of content-type - application/x-www-form-urlencoded
         app.use(express.urlencoded({extended: true}));
 
-        // Card.create({ name: 'first card', column_id: 1, user_id: 1 });
-
-        app.use('/api', (_, res) => {
-            Card.findAll({include: [{model: User}, {model: ColumnTable}]}).then(users => {
-                res.send(users);
-            });
-        });
+        // await Message.create({text: 'Сообщение ЗДАРВОА ТВАРЫНА', user_id: 1, date_of_create: new Date(), desk_id: 3});
+        //
+        // app.use('/api', (_, res) => {
+        //     Desk.findAll({include: [{model: Message}], where: {id: 1}}).then(users => {
+        //         res.send(users);
+        //     });
+        // });
 
         app.listen(PORT, () => {
             console.log(`Server started on port ${PORT}`);

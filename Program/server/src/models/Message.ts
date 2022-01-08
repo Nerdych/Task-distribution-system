@@ -1,19 +1,19 @@
 // Core
-import {Column, Table, Model, DataType, ForeignKey, BelongsTo} from 'sequelize-typescript';
-import {Card} from './Card';
+import {Column, Table, Model, ForeignKey, DataType} from 'sequelize-typescript';
 
 // Models
 import {User} from "./User";
+import {Desk} from "./Desk";
 
-interface CommentCreationAttrs {
+interface MessageCreationAttrs {
     text: string;
     date_of_create: Date;
-    card_id: number;
+    desk_id: number;
     user_id: number;
 }
 
-@Table({tableName: 'comments', timestamps: false})
-export class Comment extends Model<Comment, CommentCreationAttrs> {
+@Table({tableName: 'messages', timestamps: false})
+export class Message extends Model<Message, MessageCreationAttrs> {
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id!: number;
 
@@ -23,17 +23,11 @@ export class Comment extends Model<Comment, CommentCreationAttrs> {
     @Column({type: DataType.DATE, allowNull: false})
     date_of_create!: Date;
 
-    @ForeignKey(() => Card)
+    @ForeignKey(() => Desk)
     @Column({type: DataType.INTEGER, allowNull: false})
-    card_id!: number;
-
-    @BelongsTo(() => Card)
-    card: Card;
+    desk_id: number
 
     @ForeignKey(() => User)
     @Column({type: DataType.INTEGER, allowNull: false})
-    user_id!: number;
-
-    @BelongsTo(() => User)
-    user: User;
+    user_id: number
 }

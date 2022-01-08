@@ -6,8 +6,8 @@
 	"scripts": {
 		"watch": "tsc",
 		"dev": "nodemon src/index.ts",
-		"start": "ts-node src/index.ts"
 	},
+		"start": "ts-node src/index.ts"
 	"keywords": [
 		"task-distribution-system",
 		"diplom",
