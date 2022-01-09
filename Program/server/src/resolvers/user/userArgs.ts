@@ -5,9 +5,3 @@ export class GetUserArgs {
     @Field(() => ID)
     id!: number;
 }
-
-@ArgsType()
-export class GetUserOrganizationsArgs {
-    @Field(() => ID)
-    id!: number;
-}

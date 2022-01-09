@@ -1,9 +1,6 @@
 // Core
-import {Dialect, PoolOptions} from 'sequelize';
+import {Dialect} from 'sequelize';
 import {SequelizeOptions} from 'sequelize-typescript';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 export const dbConfig: SequelizeOptions = {
     host: process.env.POSTGRESS_HOST,
@@ -11,7 +8,7 @@ export const dbConfig: SequelizeOptions = {
     password: process.env.POSTGRESS_PASSWORD,
     database: process.env.POSTGRESS_DB,
     port: Number(process.env.POSTGRESS_PORT),
-    dialect: (process.env.POSTGRESS_DIALECT as Dialect),
+    dialect: process.env.POSTGRESS_DIALECT as Dialect,
     pool: {
         max: 5,
         min: 0,

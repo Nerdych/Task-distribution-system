@@ -1,7 +1,9 @@
 // Core
 import express, {Application} from 'express';
 
-const app: Application = express();
-
-export {app};
+const startExpressServer = (): Application => {
+    return express();
+}
+5
+export default startExpressServer;
 
