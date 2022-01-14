@@ -1,18 +1,18 @@
 // Core
 import {Response} from "express";
 
-export enum TokenType {
-    REFRESH,
-    ACCESS
+export interface AccessTokenCreateArgs {
+    userId: number
 }
 
-export interface TokenCreateArgs {
+export interface RefreshTokenCreateArgs {
     userId: number,
-    type: TokenType,
+    tokenVersion: number
 }
 
 export interface TokenSaveArgs {
     userId: number,
+    tokenVersion: number,
     res: Response
 }
 

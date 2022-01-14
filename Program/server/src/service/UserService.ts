@@ -3,7 +3,6 @@ import argon2 from "argon2";
 
 // Args
 import {LoginInput, RegisterInput, UserLoginResponse, UserResponse} from "../args/user/userArgs";
-import {TokenType} from "../args/token/tokenArgs";
 
 // Models
 import {User} from "../models/User";
@@ -67,10 +66,10 @@ class UserService {
             throw new Error('Incorrect password');
         }
 
-        tokenService.saveToken({userId: user.id, res});
+        tokenService.saveToken({userId: user.id, res, tokenVersion: user.token_version!});
 
         return {
-            accessToken: tokenService.createToken({userId: user.id, type: TokenType.ACCESS})
+            accessToken: tokenService.createAccessToken({userId: user.id})
         };
     }
 

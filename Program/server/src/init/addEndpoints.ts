@@ -8,11 +8,9 @@ import {User} from "../models/User";
 // Service
 import tokenService from "../service/TokenService";
 
-// Args
-import {TokenType} from "../args/token/tokenArgs";
-
 export const addEndpoints = (app: Application): void => {
     app.post('/refresh_token', async (req, res) => {
+        console.log(req.cookies)
         const token = req.cookies.jid;
 
         if (!token) {
@@ -33,8 +31,12 @@ export const addEndpoints = (app: Application): void => {
             return res.send({ok: false, accessToken: ''});
         }
 
-        tokenService.saveToken({userId: user.id, res});
-        return res.send({ok: true, accessToken: tokenService.createToken({userId: user.id, type: TokenType.ACCESS})});
+        if (user.token_version !== payload.tokenVersion) {
+            return res.send({ok: false, accessToken: ''});
+        }
+
+        tokenService.saveToken({userId: user.id, tokenVersion: user.token_version || 0, res});
+        return res.send({ok: true, accessToken: tokenService.createAccessToken({userId: user.id})});
     })
     ;
 }

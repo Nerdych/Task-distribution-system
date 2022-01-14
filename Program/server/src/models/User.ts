@@ -21,6 +21,7 @@ interface UserCreationAttrs {
     password: string;
     date_of_birth?: Date;
     phone?: string;
+    token_version?: number;
 }
 
 @ObjectType()
@@ -52,6 +53,9 @@ export class User extends Model<User, UserCreationAttrs> {
 
     @Column({type: DataType.TEXT, allowNull: false})
     password!: string;
+
+    @Column({type: DataType.INTEGER, defaultValue: 0})
+    token_version?: number;
 
     @Field(() => [Message], {nullable: true})
     @HasMany(() => Message)

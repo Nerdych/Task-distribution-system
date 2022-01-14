@@ -17,7 +17,9 @@ import {db} from './init/database';
 // Server
 import startExpressServer from './init/expressServer';
 import startApolloServer from "./init/apolloServer";
+
 import {addEndpoints} from "./init/addEndpoints";
+import {User} from "./models/User";
 
 const start = async () => {
     try {
@@ -32,6 +34,7 @@ const start = async () => {
 
         const app: Application = startExpressServer();
         const apolloServer: ApolloServer = await startApolloServer();
+        app.use(cookieParser());
 
         apolloServer.applyMiddleware({
             app,
@@ -41,7 +44,6 @@ const start = async () => {
             }
         });
 
-        app.use(cookieParser());
         app.use(cors(corsConfig));
         app.use(express.json());
 

@@ -2,26 +2,31 @@
 import {sign} from "jsonwebtoken";
 
 // Args
-import {TokenCreateArgs, TokenSaveArgs, TokenType} from "../args/token/tokenArgs";
+import {AccessTokenCreateArgs, RefreshTokenCreateArgs, TokenSaveArgs} from "../args/token/tokenArgs";
 
 // Constants
 import {__prod__} from "../init/config/constants";
 
 class TokenService {
-    createToken({userId, type}: TokenCreateArgs): string {
-        const secret: string = type === TokenType.ACCESS ? process.env.ACCESS_TOKEN_SECRET || 'ACCESS_TOKEN_SECRET' : process.env.REFRESH_TOKEN_SECRET || 'REFRESH_TOKEN_SECRET';
-        const expiresIn: string = type === TokenType.ACCESS ? '15m' : '7d';
-        const token = sign({userId}, secret, {
-            expiresIn,
+    createAccessToken({userId}: AccessTokenCreateArgs) {
+        const token = sign({userId}, process.env.ACCESS_TOKEN_SECRET || 'ACCESS_TOKEN_SECRET', {
+            expiresIn: '15m',
         });
         return token;
     }
 
-    saveToken({userId, res}: TokenSaveArgs) {
-        res.cookie('jid', this.createToken({
+    createRefreshToken({userId, tokenVersion}: RefreshTokenCreateArgs) {
+        const token = sign({userId, tokenVersion}, process.env.REFRESH_TOKEN_SECRET || 'REFRESH_TOKEN_SECRET', {
+            expiresIn: '7d',
+        });
+        return token;
+    }
+
+    saveToken({userId, res, tokenVersion}: TokenSaveArgs) {
+        res.cookie('jid', this.createRefreshToken({
             userId,
-            type: TokenType.REFRESH
-        }), {httpOnly: __prod__, sameSite: "none", secure: true, maxAge: 7 * 24 * 60 * 60 * 1000});
+            tokenVersion
+        }), {httpOnly: __prod__, maxAge: 7 * 24 * 60 * 60 * 1000});
     }
 }
 
