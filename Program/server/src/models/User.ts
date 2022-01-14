@@ -50,7 +50,6 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.STRING(128), allowNull: false, unique: true})
     email!: string;
 
-    @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false})
     password!: string;
 

@@ -1,6 +1,8 @@
 // Core
-import express from 'express';
+import express, {Application} from 'express';
+import cookieParser from "cookie-parser";
 import cors from 'cors';
+import {ApolloServer} from "apollo-server-express";
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,8 +15,9 @@ import {PORT} from './init/config/constants';
 import {db} from './init/database';
 
 // Server
-import startExpressServer from './init/server';
+import startExpressServer from './init/expressServer';
 import startApolloServer from "./init/apolloServer";
+import {addEndpoints} from "./init/addEndpoints";
 
 const start = async () => {
     try {
@@ -27,13 +30,22 @@ const start = async () => {
                 console.error('Unable to connect to the database:', err);
             });
 
-        const apolloServer = await startApolloServer();
-        const app = startExpressServer();
+        const app: Application = startExpressServer();
+        const apolloServer: ApolloServer = await startApolloServer();
 
-        apolloServer.applyMiddleware({app});
+        apolloServer.applyMiddleware({
+            app,
+            cors: {
+                origin: 'https://studio.apollographql.com',
+                credentials: true,
+            }
+        });
 
+        app.use(cookieParser());
         app.use(cors(corsConfig));
         app.use(express.json());
+
+        addEndpoints(app);
 
         app.listen(PORT, () => {
             console.log(`Server started on port ${PORT}`);
