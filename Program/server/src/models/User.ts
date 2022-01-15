@@ -54,7 +54,7 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.TEXT, allowNull: false})
     password!: string;
 
-    @Column({type: DataType.INTEGER, defaultValue: 0})
+    @Column({type: DataType.INTEGER, allowNull: false, defaultValue: 0})
     token_version?: number;
 
     @Field(() => [Message], {nullable: true})

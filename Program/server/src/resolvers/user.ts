@@ -5,7 +5,15 @@ import {Arg, Ctx, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {User} from "../models/User";
 
 // Types
-import {RegisterInput, LoginInput, UserResponse, UserLoginResponse} from '../args/user/userArgs';
+import {
+    RegisterInput,
+    LoginInput,
+    UserResponse,
+    UserLoginResponse,
+    ForgotPasswordInput,
+    UserForgotPasswordResponse,
+    UserChangePasswordResponse, ChangePasswordInput
+} from '../args/user/userArgs';
 
 // Service
 import UserService from "../service/UserService";
@@ -32,5 +40,15 @@ export class UserResolver {
     @Mutation(() => UserLoginResponse)
     async login(@Arg('options') options: LoginInput, @Ctx() ctx: MyContext): Promise<UserLoginResponse> {
         return UserService.login(options, ctx);
+    }
+
+    @Mutation(() => UserForgotPasswordResponse)
+    async forgotPassword(@Arg('options') options: ForgotPasswordInput, @Ctx() ctx: MyContext): Promise<UserForgotPasswordResponse> {
+        return UserService.forgotPassword(options, ctx);
+    }
+
+    @Mutation(() => UserChangePasswordResponse)
+    async changePassword(@Arg('options') options: ChangePasswordInput, @Ctx() ctx: MyContext): Promise<UserChangePasswordResponse> {
+        return UserService.changePassword(options, ctx);
     }
 }

@@ -2,6 +2,7 @@
 import express, {Application} from 'express';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
+import NodeCache from 'node-cache';
 import {ApolloServer} from "apollo-server-express";
 import dotenv from 'dotenv';
 
@@ -17,9 +18,7 @@ import {db} from './init/database';
 // Server
 import startExpressServer from './init/expressServer';
 import startApolloServer from "./init/apolloServer";
-
 import {addEndpoints} from "./init/addEndpoints";
-import {User} from "./models/User";
 
 const start = async () => {
     try {
@@ -32,8 +31,11 @@ const start = async () => {
                 console.error('Unable to connect to the database:', err);
             });
 
+        const nodeCache = new NodeCache();
         const app: Application = startExpressServer();
-        const apolloServer: ApolloServer = await startApolloServer();
+        const apolloServer: ApolloServer = await startApolloServer({cache: nodeCache});
+
+        // todo ХЫЗЫ СРАБОТАЕТ ЛИ ЕСЛИ ВНИЗ ПЕРЕТАЩУ
         app.use(cookieParser());
 
         apolloServer.applyMiddleware({

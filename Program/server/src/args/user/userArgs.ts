@@ -7,10 +7,10 @@ import {User} from "../../models/User";
 @ObjectType()
 export class FieldError {
     @Field(() => String)
-    field: string
+    field!: string
 
     @Field(() => String)
-    message: string
+    message!: string
 }
 
 @ObjectType()
@@ -24,8 +24,26 @@ export class UserResponse {
 
 @ObjectType()
 export class UserLoginResponse {
+    @Field(() => String)
+    accessToken!: string
+}
+
+@ObjectType()
+export class UserForgotPasswordResponse {
+    @Field(() => String)
+    message!: string
+
+    @Field(() => Boolean)
+    isMailSent!: boolean
+}
+
+@ObjectType()
+export class UserChangePasswordResponse {
     @Field()
-    accessToken: string
+    message!: string
+
+    @Field()
+    isChangePassword!: boolean
 }
 
 @InputType({description: "Register user data"})
@@ -56,4 +74,19 @@ export class LoginInput implements Partial<User> {
 
     @Field(() => String)
     password!: string;
+}
+
+@InputType({description: "Forgot password user data"})
+export class ForgotPasswordInput implements Partial<User> {
+    @Field(() => String)
+    email!: string;
+}
+
+@InputType({description: "Change password user data"})
+export class ChangePasswordInput {
+    @Field(() => String)
+    token!: string;
+
+    @Field(() => String)
+    newPassword!: string;
 }
