@@ -1,6 +1,7 @@
 // Core
 import argon2 from "argon2";
 import {v4} from "uuid";
+import {ApolloError} from "apollo-server-express";
 
 // Args
 import {
@@ -54,17 +55,17 @@ class UserService {
         const user: User | null = await User.findOne({where: {email}});
 
         if (!user) {
-            throw new Error('Пользователь с таким email не найден');
+            throw new ApolloError('Пользователь с таким email не найден', 'ARGUMENT_VALIDATION_ERROR');
         }
 
         const valid = await argon2.verify(user.password, password);
 
         if (!valid) {
-            throw new Error('Неверный пароль');
+            throw new ApolloError('Неверный пароль', 'ARGUMENT_VALIDATION_ERROR');
         }
 
         if (!user.is_activated) {
-            throw new Error('Аккаунт ожидает подтверждения на почте');
+            throw new ApolloError('Аккаунт ожидает подтверждения на почте', 'ACCOUNT_ERROR');
         }
 
         tokenService.saveToken({userId: user.id, res, tokenVersion: user.token_version!});
@@ -78,7 +79,7 @@ class UserService {
         const user: User | null = await User.findOne({where: {email}});
 
         if (!user) {
-            throw new Error('Пользователь с таким email не найден');
+            throw new ApolloError('Пользователь с таким email не найден', 'ARGUMENT_VALIDATION_ERROR');
         }
 
         const token: string = v4();
@@ -99,13 +100,13 @@ class UserService {
         const userId: number | undefined = cache.get(key);
 
         if (!userId) {
-            throw new Error('Время действия ссылки истекло');
+            throw new ApolloError('Время действия ссылки истекло', 'TOKEN_ERROR');
         }
 
         const user: User | null = await User.findOne({where: {id: userId}});
 
         if (!user) {
-            throw new Error('Пользователь больше не существует');
+            throw new ApolloError('Пользователь больше не существует', 'TOKEN_ERROR');
         }
 
         const hashedPassword: string = await argon2.hash(newPassword);
@@ -129,13 +130,13 @@ class UserService {
         const userId: number | undefined = cache.get(key);
 
         if (!userId) {
-            throw new Error('Время действия ссылки истекло');
+            throw new ApolloError('Время действия ссылки истекло', 'TOKEN_ERROR');
         }
 
         const user: User | null = await User.findOne({where: {id: userId}});
 
         if (!user) {
-            throw new Error('Пользователь больше не существует');
+            throw new ApolloError('Пользователь больше не существует', 'TOKEN_ERROR');
         }
 
         await user.update({is_activated: true});

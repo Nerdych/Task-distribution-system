@@ -5,24 +5,26 @@ import {Sequelize} from 'sequelize-typescript';
 import {dbConfig} from './config/dbConfig';
 
 // Models
-import {Desk} from '../models/Desk';
-import {Organization} from '../models/Ogranization';
-import {User} from '../models/User';
-import {ColumnTable} from '../models/Column';
 import {Card} from '../models/Card';
-import {List} from '../models/List';
-import {Task} from '../models/Task';
+import {ColumnTable} from '../models/Column';
 import {Comment} from "../models/Comment";
+import {Desk} from '../models/Desk';
 import {Label} from "../models/Label";
-import {OrganizationRole} from "../models/OrganizationRole";
-import {OrganizationRight} from "../models/OrganizationRight";
-import {OrganizationRoleOrganizationRight} from "../models/OrganizationRoleOrganizationRight";
 import {LabelCard} from "../models/LabelCard";
-import {UserLabel} from "../models/UserLabel";
-import {UserOrganizationRole} from "../models/UserOrganizationRole";
-import {UserDesk} from "../models/UserDesk";
-import {UserOrganization} from "../models/UserOrganization";
+import {List} from '../models/List';
 import {Message} from "../models/Message";
+import {Organization} from '../models/Ogranization';
+import {Purpose} from "../models/Purpose";
+import {Right} from "../models/Right";
+import {Role} from "../models/Role";
+import {RoleRight} from "../models/RoleRight";
+import {Task} from '../models/Task';
+import {User} from '../models/User';
+import {UserDesk} from "../models/UserDesk";
+import {UserDeskRole} from "../models/UserDeskRole";
+import {UserLabel} from "../models/UserLabel";
+import {UserOrganization} from "../models/UserOrganization";
+import {UserOrganizationRole} from "../models/UserOrganizationRole";
 
 export const db: Sequelize = new Sequelize({
     database: dbConfig.database,
@@ -32,5 +34,5 @@ export const db: Sequelize = new Sequelize({
     port: dbConfig.port,
     dialect: dbConfig.dialect,
     pool: dbConfig.pool,
-    models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, OrganizationRole, OrganizationRight, OrganizationRoleOrganizationRight, LabelCard, UserLabel, UserOrganizationRole, UserDesk, UserOrganization, Message],
+    models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, Role, Right, LabelCard, UserLabel, UserOrganizationRole, UserDesk, UserOrganization, Message, Purpose, RoleRight, UserDeskRole],
 });

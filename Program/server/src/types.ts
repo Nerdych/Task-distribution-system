@@ -10,6 +10,12 @@ export type MyContext = {
     payload?: JwtPayload & { userId?: number }
 };
 
-export enum ErrorTypes {
-    ARGUMENT_VALIDATION_ERROR = "Argument Validation Error",
+export enum OrganizationRights {
+    getAllDesks = 'getAllDesks'
 }
+
+export enum DesksRights {
+    addCard= 'addCard'
+}
+
+

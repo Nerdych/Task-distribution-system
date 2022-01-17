@@ -1,9 +1,11 @@
 // Core
-import {Column, Table, Model, ForeignKey, DataType} from 'sequelize-typescript';
+import {Column, Table, Model, ForeignKey, DataType, HasMany} from 'sequelize-typescript';
 
 // Models
 import {User} from "./User";
 import {Organization} from "./Ogranization";
+import {UserOrganizationRole} from "./UserOrganizationRole";
+import {Field} from "type-graphql";
 
 interface UserOrganizationCreationAttrs {
     experience: number;
@@ -34,4 +36,7 @@ export class UserOrganization extends Model<UserOrganization, UserOrganizationCr
     @ForeignKey(() => Organization)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'user_id_organization_id_unique'})
     organization_id: number
+
+    @HasMany(() => UserOrganizationRole)
+    user_organization_role: UserOrganizationRole[];
 }

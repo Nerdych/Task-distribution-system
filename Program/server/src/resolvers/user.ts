@@ -6,31 +6,33 @@ import {User} from "../models/User";
 
 // Types
 import {
-    RegisterInput,
-    LoginInput,
-    UserLoginResponse,
-    ForgotPasswordInput,
-    UserForgotPasswordResponse,
-    UserChangePasswordResponse,
     ChangePasswordInput,
-    UserRegisterResponse,
+    ConfirmAccountInput,
+    ForgotPasswordInput,
+    LoginInput,
+    RegisterInput,
+    UserChangePasswordResponse,
     UserConfirmAccountResponse,
-    ConfirmAccountInput
+    UserForgotPasswordResponse,
+    UserLoginResponse,
+    UserRegisterResponse
 } from '../service/UserService/args';
 
 // Service
 import UserService from "../service/UserService/UserService";
 
 // Types
-import {MyContext} from "../types";
+import {MyContext, OrganizationRights} from "../types";
 
 // Middleware
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
+import {RightDecorator} from "../decorators/RightDecorator";
 
 @Resolver()
 export class UserResolver {
     @Query(() => User, {nullable: true})
     @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizations: {id: 1, rights: [OrganizationRights.getAllDesks]}})
     async me(@Ctx() ctx: MyContext): Promise<User | null> {
         return UserService.me(ctx);
     }
