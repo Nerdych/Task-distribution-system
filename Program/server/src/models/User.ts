@@ -5,8 +5,8 @@ import {Field, ID, ObjectType} from "type-graphql";
 // Models
 import {Label} from "./Label";
 import {UserLabel} from "./UserLabel";
-import {Role} from "./Role";
-import {UserRole} from "./UserRole";
+import {OrganizationRole} from "./OrganizationRole";
+import {UserOrganizationRole} from "./UserOrganizationRole";
 import {Desk} from "./Desk";
 import {UserDesk} from "./UserDesk";
 import {Organization} from "./Ogranization";
@@ -21,7 +21,6 @@ interface UserCreationAttrs {
     password: string;
     date_of_birth?: Date;
     phone?: string;
-    token_version?: number;
 }
 
 @ObjectType()
@@ -51,11 +50,15 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.STRING(128), allowNull: false, unique: true})
     email!: string;
 
+    @Field(() => Boolean)
+    @Column({type: DataType.BOOLEAN, allowNull: false, defaultValue: false})
+    is_activated: boolean;
+
     @Column({type: DataType.TEXT, allowNull: false})
     password!: string;
 
     @Column({type: DataType.INTEGER, allowNull: false, defaultValue: 0})
-    token_version?: number;
+    token_version: number;
 
     @Field(() => [Message], {nullable: true})
     @HasMany(() => Message)
@@ -69,9 +72,9 @@ export class User extends Model<User, UserCreationAttrs> {
     @BelongsToMany(() => Label, () => UserLabel)
     labels: Array<Label & { UserLabel: UserLabel }>;
 
-    @Field(() => [Role], {nullable: true})
-    @BelongsToMany(() => Role, () => UserRole)
-    roles: Array<Role & { UserRole: UserRole }>;
+    @Field(() => [OrganizationRole], {nullable: true})
+    @BelongsToMany(() => OrganizationRole, () => UserOrganizationRole)
+    roles: Array<OrganizationRole & { UserOrganizationRole: UserOrganizationRole }>;
 
     @Field(() => [Desk], {nullable: true})
     @BelongsToMany(() => Desk, () => UserDesk)

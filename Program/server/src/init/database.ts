@@ -14,12 +14,12 @@ import {List} from '../models/List';
 import {Task} from '../models/Task';
 import {Comment} from "../models/Comment";
 import {Label} from "../models/Label";
-import {Role} from "../models/Role";
-import {Right} from "../models/Right";
-import {RoleRight} from "../models/RoleRight";
+import {OrganizationRole} from "../models/OrganizationRole";
+import {OrganizationRight} from "../models/OrganizationRight";
+import {OrganizationRoleOrganizationRight} from "../models/OrganizationRoleOrganizationRight";
 import {LabelCard} from "../models/LabelCard";
 import {UserLabel} from "../models/UserLabel";
-import {UserRole} from "../models/UserRole";
+import {UserOrganizationRole} from "../models/UserOrganizationRole";
 import {UserDesk} from "../models/UserDesk";
 import {UserOrganization} from "../models/UserOrganization";
 import {Message} from "../models/Message";
@@ -32,5 +32,5 @@ export const db: Sequelize = new Sequelize({
     port: dbConfig.port,
     dialect: dbConfig.dialect,
     pool: dbConfig.pool,
-    models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, Role, Right, RoleRight, LabelCard, UserLabel, UserRole, UserDesk, UserOrganization, Message],
+    models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, OrganizationRole, OrganizationRight, OrganizationRoleOrganizationRight, LabelCard, UserLabel, UserOrganizationRole, UserDesk, UserOrganization, Message],
 });

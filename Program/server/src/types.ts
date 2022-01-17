@@ -9,3 +9,7 @@ export type MyContext = {
     cache: NodeCache,
     payload?: JwtPayload & { userId?: number }
 };
+
+export enum ErrorTypes {
+    ARGUMENT_VALIDATION_ERROR = "Argument Validation Error",
+}

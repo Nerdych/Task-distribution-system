@@ -2,12 +2,12 @@
 import nodemailer, {Transporter} from "nodemailer";
 
 // Helpers
-import {validateEmail} from "../helpers/validateEmail";
+import {validateEmail} from "../../helpers/validateEmail";
 
 // Args
-import {sendMailArgs} from "../args/mail/mailArgs";
+import {sendMailArgs} from "./args";
 
-class MailService {
+class TokenService {
     transporter: Transporter;
 
     constructor() {
@@ -41,4 +41,4 @@ class MailService {
     }
 }
 
-export default new MailService();
+export default new TokenService();

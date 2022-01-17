@@ -8,15 +8,18 @@ import {User} from "../models/User";
 import {
     RegisterInput,
     LoginInput,
-    UserResponse,
     UserLoginResponse,
     ForgotPasswordInput,
     UserForgotPasswordResponse,
-    UserChangePasswordResponse, ChangePasswordInput
-} from '../args/user/userArgs';
+    UserChangePasswordResponse,
+    ChangePasswordInput,
+    UserRegisterResponse,
+    UserConfirmAccountResponse,
+    ConfirmAccountInput
+} from '../service/UserService/args';
 
 // Service
-import UserService from "../service/UserService";
+import UserService from "../service/UserService/UserService";
 
 // Types
 import {MyContext} from "../types";
@@ -28,13 +31,13 @@ import {AuthMiddleware} from "../middleware/AuthMiddleware";
 export class UserResolver {
     @Query(() => User, {nullable: true})
     @UseMiddleware(AuthMiddleware)
-    async me(): Promise<User | null> {
-        return UserService.me();
+    async me(@Ctx() ctx: MyContext): Promise<User | null> {
+        return UserService.me(ctx);
     }
 
-    @Mutation(() => UserResponse)
-    async register(@Arg('options') options: RegisterInput): Promise<UserResponse> {
-        return UserService.register(options);
+    @Mutation(() => UserRegisterResponse)
+    async register(@Arg('options') options: RegisterInput, @Ctx() ctx: MyContext): Promise<UserRegisterResponse> {
+        return UserService.register(options, ctx);
     }
 
     @Mutation(() => UserLoginResponse)
@@ -50,5 +53,10 @@ export class UserResolver {
     @Mutation(() => UserChangePasswordResponse)
     async changePassword(@Arg('options') options: ChangePasswordInput, @Ctx() ctx: MyContext): Promise<UserChangePasswordResponse> {
         return UserService.changePassword(options, ctx);
+    }
+
+    @Mutation(() => UserConfirmAccountResponse)
+    async confirmAccount(@Arg('options') options: ConfirmAccountInput, @Ctx() ctx: MyContext): Promise<UserConfirmAccountResponse> {
+        return UserService.confirmAccount(options, ctx);
     }
 }

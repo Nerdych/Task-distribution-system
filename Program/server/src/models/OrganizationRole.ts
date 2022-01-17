@@ -4,19 +4,19 @@ import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
 import {Organization} from './Ogranization';
-import {Right} from "./Right";
-import {RoleRight} from "./RoleRight";
-import {UserRole} from "./UserRole";
+import {OrganizationRight} from "./OrganizationRight";
+import {OrganizationRoleOrganizationRight} from "./OrganizationRoleOrganizationRight";
+import {UserOrganizationRole} from "./UserOrganizationRole";
 import {User} from "./User";
 
-interface RoleCreationAttrs {
+interface OrganizationRoleCreationAttrs {
     name: string;
     organization_id: number;
 }
 
 @ObjectType()
-@Table({tableName: 'roles', timestamps: false})
-export class Role extends Model<Role, RoleCreationAttrs> {
+@Table({tableName: 'organizations_roles', timestamps: false})
+export class OrganizationRole extends Model<OrganizationRole, OrganizationRoleCreationAttrs> {
     @Field(() => ID)
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id!: number;
@@ -34,11 +34,11 @@ export class Role extends Model<Role, RoleCreationAttrs> {
     @BelongsTo(() => Organization)
     organization: Organization;
 
-    @Field(() => [Right], {nullable: true})
-    @BelongsToMany(() => Right, () => RoleRight)
-    rights: Array<Right & {RoleRight: RoleRight}>;
+    @Field(() => [OrganizationRight], {nullable: true})
+    @BelongsToMany(() => OrganizationRight, () => OrganizationRoleOrganizationRight)
+    organizations_rights: Array<OrganizationRight & {OrganizationRoleOrganizationRight: OrganizationRoleOrganizationRight}>;
 
     @Field(() => [User], {nullable: true})
-    @BelongsToMany(() => User, () => UserRole)
-    users: Array<User & { UserRole: UserRole }>;
+    @BelongsToMany(() => User, () => UserOrganizationRole)
+    users: Array<User & { UserOrganizationRole: UserOrganizationRole }>;
 }

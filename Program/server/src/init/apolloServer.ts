@@ -8,6 +8,7 @@ import {UserResolver} from "../resolvers/user";
 
 // Types
 import {MyContext} from "../types";
+import {GraphQLError} from "graphql";
 
 interface startApolloServerArgs {
     cache: NodeCache
@@ -19,6 +20,9 @@ const startApolloServer = async (contextArgs: startApolloServerArgs): Promise<Ap
             resolvers: [UserResolver]
         }),
         context: ({req, res}: MyContext) => ({req, res, ...contextArgs}),
+        formatError: (error: GraphQLError) => {
+            return error;
+        }
     });
     await apolloServer.start();
     return apolloServer;

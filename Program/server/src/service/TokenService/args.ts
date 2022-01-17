@@ -1,16 +1,16 @@
 // Core
 import {Response} from "express";
 
-export interface AccessTokenCreateArgs {
+export interface CreateAccessTokenArgs {
     userId: number
 }
 
-export interface RefreshTokenCreateArgs {
+export interface CreateRefreshTokenArgs {
     userId: number,
     tokenVersion: number
 }
 
-export interface TokenSaveArgs {
+export interface SaveTokenArgs {
     userId: number,
     tokenVersion: number,
     res: Response
