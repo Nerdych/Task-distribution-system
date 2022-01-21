@@ -11,11 +11,23 @@ export type MyContext = {
 };
 
 export enum OrganizationRights {
-    getAllDesks = 'getAllDesks'
+    READ_DESK = 'READ_DESK',
+    UPDATE_NAME_DESK = 'UPDATE_NAME_DESK',
+    DELETE_DESK = 'DELETE_DESK',
+    READ_LABELS = 'READ_LABELS',
+    CREATE_LABEL = 'CREATE_LABEL',
+    UPDATE_LABEL = 'UPDATE_LABEL',
+    DELETE_LABEL = 'DELETE_LABEL',
 }
 
 export enum DesksRights {
-    addCard= 'addCard'
+    INVITE_USER_ON_DESK = 'INVITE_USER_ON_DESK',
+    READ_ROLES_ON_DESK = 'READ_ROLES_ON_DESK',
+}
+
+export enum PurposeTypes {
+    organization = 1,
+    desk = 2
 }
 
 

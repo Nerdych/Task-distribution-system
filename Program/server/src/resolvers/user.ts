@@ -22,43 +22,41 @@ import {
 import UserService from "../service/UserService/UserService";
 
 // Types
-import {MyContext, OrganizationRights} from "../types";
+import {MyContext} from "../types";
 
 // Middleware
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
-import {RightDecorator} from "../decorators/RightDecorator";
 
 @Resolver()
 export class UserResolver {
     @Query(() => User, {nullable: true})
     @UseMiddleware(AuthMiddleware)
-    @RightDecorator({organizations: {id: 1, rights: [OrganizationRights.getAllDesks]}})
     async me(@Ctx() ctx: MyContext): Promise<User | null> {
         return UserService.me(ctx);
     }
 
     @Mutation(() => UserRegisterResponse)
-    async register(@Arg('options') options: RegisterInput, @Ctx() ctx: MyContext): Promise<UserRegisterResponse> {
+    async register(@Ctx() ctx: MyContext, @Arg('options') options: RegisterInput): Promise<UserRegisterResponse> {
         return UserService.register(options, ctx);
     }
 
     @Mutation(() => UserLoginResponse)
-    async login(@Arg('options') options: LoginInput, @Ctx() ctx: MyContext): Promise<UserLoginResponse> {
+    async login(@Ctx() ctx: MyContext, @Arg('options') options: LoginInput): Promise<UserLoginResponse> {
         return UserService.login(options, ctx);
     }
 
     @Mutation(() => UserForgotPasswordResponse)
-    async forgotPassword(@Arg('options') options: ForgotPasswordInput, @Ctx() ctx: MyContext): Promise<UserForgotPasswordResponse> {
+    async forgotPassword(@Ctx() ctx: MyContext, @Arg('options') options: ForgotPasswordInput): Promise<UserForgotPasswordResponse> {
         return UserService.forgotPassword(options, ctx);
     }
 
     @Mutation(() => UserChangePasswordResponse)
-    async changePassword(@Arg('options') options: ChangePasswordInput, @Ctx() ctx: MyContext): Promise<UserChangePasswordResponse> {
+    async changePassword(@Ctx() ctx: MyContext, @Arg('options') options: ChangePasswordInput): Promise<UserChangePasswordResponse> {
         return UserService.changePassword(options, ctx);
     }
 
     @Mutation(() => UserConfirmAccountResponse)
-    async confirmAccount(@Arg('options') options: ConfirmAccountInput, @Ctx() ctx: MyContext): Promise<UserConfirmAccountResponse> {
+    async confirmAccount(@Ctx() ctx: MyContext, @Arg('options') options: ConfirmAccountInput): Promise<UserConfirmAccountResponse> {
         return UserService.confirmAccount(options, ctx);
     }
 }

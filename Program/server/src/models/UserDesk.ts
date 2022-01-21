@@ -1,9 +1,10 @@
 // Core
-import {Column, Table, Model, ForeignKey, DataType} from 'sequelize-typescript';
+import {Column, Table, Model, ForeignKey, DataType, HasMany} from 'sequelize-typescript';
 
 // Models
 import {User} from "./User";
 import {Desk} from "./Desk";
+import {UserDeskRole} from "./UserDeskRole";
 
 interface UserDeskCreationAttrs {
     user_id: number;
@@ -22,4 +23,7 @@ export class UserDesk extends Model<UserDesk, UserDeskCreationAttrs> {
     @ForeignKey(() => Desk)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'user_id_desk_id_unique'})
     desk_id: number
+
+    @HasMany(() => UserDeskRole)
+    user_desk_role: UserDeskRole[];
 }

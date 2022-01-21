@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, ForeignKey, DataType} from 'sequelize-typescript';
+import {Column, Table, Model, ForeignKey, DataType, HasMany, BelongsTo} from 'sequelize-typescript';
 
 // Models
 import {UserDesk} from "./UserDesk";
@@ -22,4 +22,7 @@ export class UserDeskRole extends Model<UserDeskRole, UserDeskRoleCreationAttrs>
     @ForeignKey(() => Role)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'user_desk_id_role_id_unique'})
     role_id: number
+
+    @BelongsTo(() => Role)
+    role: Role
 }

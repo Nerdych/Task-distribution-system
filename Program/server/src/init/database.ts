@@ -25,6 +25,10 @@ import {UserDeskRole} from "../models/UserDeskRole";
 import {UserLabel} from "../models/UserLabel";
 import {UserOrganization} from "../models/UserOrganization";
 import {UserOrganizationRole} from "../models/UserOrganizationRole";
+import {Action} from "../models/Action";
+import {BeginCondition} from "../models/BeginCondition";
+import {BeginConditionRight} from "../models/BeginConditionRight";
+import {ObjectTable} from "../models/Object";
 
 export const db: Sequelize = new Sequelize({
     database: dbConfig.database,
@@ -34,5 +38,5 @@ export const db: Sequelize = new Sequelize({
     port: dbConfig.port,
     dialect: dbConfig.dialect,
     pool: dbConfig.pool,
-    models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, Role, Right, LabelCard, UserLabel, UserOrganizationRole, UserDesk, UserOrganization, Message, Purpose, RoleRight, UserDeskRole],
+    models: [User, Organization, Desk, ColumnTable, Card, List, Task, Comment, Label, Role, Right, LabelCard, UserLabel, UserOrganizationRole, UserDesk, UserOrganization, Message, Purpose, RoleRight, UserDeskRole, Action, BeginCondition, BeginConditionRight, ObjectTable],
 });

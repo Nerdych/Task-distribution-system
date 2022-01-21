@@ -10,7 +10,7 @@ import {__prod__} from "../../init/config/constants";
 class TokenService {
     createAccessToken({userId}: CreateAccessTokenArgs) {
         const token = sign({userId}, process.env.ACCESS_TOKEN_SECRET || 'ACCESS_TOKEN_SECRET', {
-            expiresIn: '15m',
+            expiresIn: '1d',
         });
         return token;
     }

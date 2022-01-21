@@ -3,12 +3,14 @@ import NodeCache from "node-cache";
 import {ApolloServer} from "apollo-server-express";
 import {buildSchema} from "type-graphql";
 
-// Resolvers
-import {UserResolver} from "../resolvers/user";
-
 // Types
 import {MyContext} from "../types";
 import {GraphQLError} from "graphql";
+
+// Resolvers
+import {UserResolver} from "../resolvers/user";
+import {OrganizationResolver} from "../resolvers/organization";
+import {DeskResolver} from "../resolvers/desk";
 
 interface startApolloServerArgs {
     cache: NodeCache
@@ -17,7 +19,7 @@ interface startApolloServerArgs {
 const startApolloServer = async (contextArgs: startApolloServerArgs): Promise<ApolloServer> => {
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [UserResolver]
+            resolvers: [UserResolver, OrganizationResolver, DeskResolver]
         }),
         context: ({req, res}: MyContext) => ({req, res, ...contextArgs}),
         formatError: (error: GraphQLError) => {

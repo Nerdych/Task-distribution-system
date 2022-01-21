@@ -19,7 +19,7 @@ export const AuthMiddleware: Middleware<MyContext> = ({context}, next) => {
         context.payload = payload;
     } catch (e) {
         console.error(e);
-        throw new ApolloError('Вы не авторизованы', 'AUTHORIZATION_ERROR');
+        throw new ApolloError('Вы не авторизованы', 'TOKEN_ERROR');
     }
 
     return next();

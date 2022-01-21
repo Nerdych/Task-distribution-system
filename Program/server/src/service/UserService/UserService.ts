@@ -22,21 +22,21 @@ import {FORGET_PASSWORD_PREFIX, CONFIRM_ACCOUNT_PREFIX} from "../../init/config/
 
 // Service
 import tokenService from "../TokenService/TokenService";
-import MailService from "../MailService/TokenService";
+import MailService from "../MailService/MailService";
 
 // Types
 import {MyContext} from "../../types";
 
 class UserService {
     async me({payload}: MyContext): Promise<User | null> {
-        const user: User | null = await User.findOne({where: {id: payload?.userId}});
+        const user: User | null = await User.findOne({where: {id: payload?.userId}, include: {all: true}});
         return user;
     }
 
     async register(data: RegisterInput, {cache}: MyContext): Promise<UserRegisterResponse> {
         const hashedPassword: string = await argon2.hash(data.password);
 
-        const user: User | null = await User.create({...data, password: hashedPassword});
+        const user: User = await User.create({...data, password: hashedPassword});
 
         const token: string = v4();
         cache.set(CONFIRM_ACCOUNT_PREFIX + token, user.id, 1000 * 60 * 60 * 24);

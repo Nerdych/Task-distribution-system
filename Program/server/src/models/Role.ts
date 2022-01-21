@@ -12,10 +12,13 @@ import {UserOrganization} from "./UserOrganization";
 import {UserDesk} from "./UserDesk";
 import {UserDeskRole} from "./UserDeskRole";
 
+// Types
+import {PurposeTypes} from "../types";
+
 interface RoleCreationAttrs {
     name: string;
     organization_id: number;
-    purpose_id: number;
+    purpose_id: PurposeTypes;
 }
 
 @ObjectType()
@@ -37,7 +40,7 @@ export class Role extends Model<Role, RoleCreationAttrs> {
     @Field(() => Int)
     @ForeignKey(() => Purpose)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'name_organization_id_purpose_id_unique'})
-    purpose_id!: number;
+    purpose_id!: PurposeTypes;
 
     @Field(() => Organization)
     @BelongsTo(() => Organization)

@@ -8,9 +8,9 @@ import {UserOrganizationRole} from "./UserOrganizationRole";
 import {Field} from "type-graphql";
 
 interface UserOrganizationCreationAttrs {
-    experience: number;
-    hourly_rate: number;
-    is_vacation: number;
+    experience?: number;
+    hourly_rate?: number;
+    is_vacation?: number;
     user_id: number;
     organization_id: number;
 }
@@ -20,10 +20,10 @@ export class UserOrganization extends Model<UserOrganization, UserOrganizationCr
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id!: number;
 
-    @Column({type: DataType.INTEGER, allowNull: false})
+    @Column({type: DataType.INTEGER, allowNull: false, defaultValue: 0})
     experience!: number;
 
-    @Column({type: DataType.INTEGER, allowNull: false})
+    @Column({type: DataType.INTEGER, allowNull: false, defaultValue: 0})
     hourly_rate!: number;
 
     @Column({type: DataType.BOOLEAN, allowNull: false, defaultValue: false})

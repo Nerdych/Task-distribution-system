@@ -7,7 +7,7 @@ import {validateEmail} from "../../helpers/validateEmail";
 // Args
 import {sendMailArgs} from "./args";
 
-class TokenService {
+class MailService {
     transporter: Transporter;
 
     constructor() {
@@ -41,4 +41,4 @@ class TokenService {
     }
 }
 
-export default new TokenService();
+export default new MailService();
