@@ -34,7 +34,9 @@ class DeskService {
             const role: Role = await Role.create({
                 name: 'Создатель карточки',
                 organization_id: orgId,
-                purpose_id: PurposeTypes.desk
+                purpose_id: PurposeTypes.desk,
+                // TODO РЕЙТИНГ СДЕЛАТЬ
+                rating: 1,
             });
             const rights: Right[] = await Right.findAll({where: {purpose_id: PurposeTypes.desk}});
             await rights.forEach(async right => {

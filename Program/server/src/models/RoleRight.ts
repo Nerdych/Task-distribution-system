@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, ForeignKey, DataType} from 'sequelize-typescript';
+import {Column, Table, Model, ForeignKey, DataType, BelongsTo} from 'sequelize-typescript';
 
 // Models
 import {Role} from "./Role";
@@ -19,13 +19,19 @@ export class RoleRight extends Model<RoleRight, RoleRightCreationAttrs> {
 
     @ForeignKey(() => BeginCondition)
     @Column({type: DataType.INTEGER})
-    begin_condition_id: number
+    begin_condition_id: number;
 
     @ForeignKey(() => Role)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'role_id_right_id_unique'})
-    role_id!: number
+    role_id!: number;
 
     @ForeignKey(() => Right)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'role_id_right_id_unique'})
-    right_id!: number
+    right_id!: number;
+
+    @BelongsTo(() => Right)
+    right: Right;
+
+    @BelongsTo(() => BeginCondition)
+    begin_condition: BeginCondition;
 }

@@ -10,7 +10,6 @@ import tokenService from "../service/TokenService/TokenService";
 
 export const addEndpoints = (app: Application): void => {
     app.post('/refresh_token', async (req, res) => {
-        console.log(req.cookies)
         const token = req.cookies.jid;
 
         if (!token) {

@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, DataType, ForeignKey, BelongsTo, BelongsToMany} from 'sequelize-typescript';
+import {Column, Table, Model, DataType, ForeignKey, BelongsTo, BelongsToMany, HasMany} from 'sequelize-typescript';
 import {Field, ID, Int, ObjectType} from "type-graphql";
 
 // Models
@@ -17,6 +17,7 @@ import {PurposeTypes} from "../types";
 
 interface RoleCreationAttrs {
     name: string;
+    rating: number;
     organization_id: number;
     purpose_id: PurposeTypes;
 }
@@ -31,6 +32,10 @@ export class Role extends Model<Role, RoleCreationAttrs> {
     @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false, unique: 'name_organization_id_purpose_id_unique'})
     name!: string;
+
+    @Field(() => Int)
+    @Column({type: DataType.INTEGER, allowNull: false})
+    rating!: number;
 
     @Field(() => Int)
     @ForeignKey(() => Organization)
@@ -49,6 +54,10 @@ export class Role extends Model<Role, RoleCreationAttrs> {
     @Field(() => Purpose)
     @BelongsTo(() => Purpose)
     purpose: Purpose;
+
+    @Field(() => [RoleRight], {nullable: true})
+    @HasMany(() => RoleRight)
+    role_rights: RoleRight[];
 
     @Field(() => [Right], {nullable: true})
     @BelongsToMany(() => Right, () => RoleRight)

@@ -5,7 +5,7 @@ import {Arg, Ctx, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
 import {Desk} from "../models/Desk";
 
 // Types
-import {MyContext, OrganizationRights} from "../types";
+import {DesksRights, MyContext, OrganizationRights} from "../types";
 
 // Service
 import DeskService from "../service/DeskService/DeskService";
@@ -29,7 +29,7 @@ export class DeskResolver {
 
     @Mutation(() => CreateDeskResponse)
     @UseMiddleware(AuthMiddleware)
-    @RightDecorator({organizationRights: [OrganizationRights.UPDATE_NAME_DESK]})
+    @RightDecorator({organizationRights: [OrganizationRights.READ_DESK], deskRights: [DesksRights.READ_ROLES_ON_DESK]})
     async createDesk(@Ctx() ctx: MyContext, @Arg('options') options: CreateDeskInput): Promise<CreateDeskResponse> {
         return DeskService.create(ctx, options);
     }

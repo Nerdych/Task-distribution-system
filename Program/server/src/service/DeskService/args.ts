@@ -13,6 +13,8 @@ class DeskResponse {
 export class CreateDeskResponse extends DeskResponse {
 };
 
+
+// TODO ЭКСПЕРИМЕНТИРУЕМ
 @InputType({description: "Create desk data"})
 export class CreateDeskInput {
     @Field(() => String)
@@ -26,6 +28,18 @@ export class CreateDeskInput {
         message: 'Организация с таким индентификатором не найдена'
     })
     orgId!: number;
+
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    roleId!: number;
+
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    deskId!: number;
 }
 
 @InputType({description: "Get desk by id data"})
