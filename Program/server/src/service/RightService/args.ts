@@ -1,5 +1,5 @@
 // Core
-import {ArgsDictionary} from "type-graphql";
+import {ArgsDictionary, Field, InputType, Int} from "type-graphql";
 
 // Models
 import {Right} from "../../models/Right";
@@ -7,6 +7,7 @@ import {Role} from "../../models/Role";
 
 // Types
 import {ObjectTypes} from "../../types";
+import {OrganizationFound} from "../../validators/organizationFound";
 
 export interface GetOrganizationRightsArgs {
     orgId: number;
@@ -45,4 +46,13 @@ export interface ConditionFunctionArgs {
     model: ObjectTypes;
     reqData: ReqData;
     role: Role;
+}
+
+@InputType({description: "Get organization roles data"})
+export class getOrganizationRolesInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
 }

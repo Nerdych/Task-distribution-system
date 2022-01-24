@@ -7,6 +7,7 @@ import {Desk} from './Desk';
 import {Label} from "./Label";
 import {UserOrganization} from "./UserOrganization";
 import {User} from "./User";
+import {Role} from "./Role";
 
 interface OrganizationCreationAttrs {
     name: string;
@@ -31,6 +32,10 @@ export class Organization extends Model<Organization, OrganizationCreationAttrs>
     @Field(() => [Desk], {nullable: true})
     @HasMany(() => Desk)
     desks: Desk[];
+
+    @Field(() => [Role], {nullable: true})
+    @HasMany(() => Role)
+    roles: Role[];
 
     @Field(() => [Label], {nullable: true})
     @HasMany(() => Label)

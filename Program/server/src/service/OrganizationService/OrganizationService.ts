@@ -42,8 +42,9 @@ class OrganizationService {
                 rating: 1,
             });
             const rights: Right[] = await Right.findAll({where: {purpose_id: PurposeTypes.organization}});
+            // TODO сделать
             await rights.forEach(async right => {
-                await RoleRight.create({right_id: right.id, role_id: role.id});
+                await RoleRight.create({right_id: right.id, role_id: role.id, begin_condition_id: 1});
             });
             await UserOrganizationRole.create({user_organization_id: userOrganization.id, role_id: role.id});
 

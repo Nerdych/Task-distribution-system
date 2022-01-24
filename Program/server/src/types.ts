@@ -7,7 +7,8 @@ export type MyContext = {
     req: Request,
     res: Response,
     cache: NodeCache,
-    payload?: JwtPayload & { userId?: number }
+    payload?: JwtPayload & { userId?: number },
+    conditions?: BeginCondition[]
 };
 
 export enum OrganizationRights {
@@ -19,6 +20,7 @@ export enum OrganizationRights {
     CREATE_LABEL = 'CREATE_LABEL',
     UPDATE_LABEL = 'UPDATE_LABEL',
     DELETE_LABEL = 'DELETE_LABEL',
+    READ_ORGANIZATION_ROLES = 'READ_ORGANIZATION_ROLES'
 }
 
 export enum DesksRights {

@@ -5,7 +5,7 @@ import {Column, Table, Model, ForeignKey, DataType, HasMany, BelongsToMany} from
 import {User} from "./User";
 import {Organization} from "./Ogranization";
 import {UserOrganizationRole} from "./UserOrganizationRole";
-import {Field} from "type-graphql";
+import {Field, ObjectType} from "type-graphql";
 import {Desk} from "./Desk";
 import {UserDesk} from "./UserDesk";
 import {Role} from "./Role";
@@ -19,6 +19,7 @@ interface UserOrganizationCreationAttrs {
     organization_id: number;
 }
 
+@ObjectType()
 @Table({tableName: 'user_organization', timestamps: false})
 export class UserOrganization extends Model<UserOrganization, UserOrganizationCreationAttrs> {
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})

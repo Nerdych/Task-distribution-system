@@ -48,6 +48,7 @@ export function RightDecorator({organizationRights = [], deskRights = []}: Right
             needRights: [...organizationRights, ...deskRights],
             reqData: {
                 user,
+                context,
                 ...args
             }
         });

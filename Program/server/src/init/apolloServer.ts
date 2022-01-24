@@ -11,6 +11,7 @@ import {GraphQLError} from "graphql";
 import {UserResolver} from "../resolvers/user";
 import {OrganizationResolver} from "../resolvers/organization";
 import {DeskResolver} from "../resolvers/desk";
+import {RightResolver} from "../resolvers/right";
 
 interface startApolloServerArgs {
     cache: NodeCache
@@ -19,7 +20,7 @@ interface startApolloServerArgs {
 const startApolloServer = async (contextArgs: startApolloServerArgs): Promise<ApolloServer> => {
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [UserResolver, OrganizationResolver, DeskResolver]
+            resolvers: [UserResolver, OrganizationResolver, DeskResolver, RightResolver]
         }),
         context: ({req, res}: MyContext) => ({req, res, ...contextArgs}),
         formatError: (error: GraphQLError) => {

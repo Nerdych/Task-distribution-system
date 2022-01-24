@@ -1,5 +1,6 @@
 // Core
 import {ApolloError} from "apollo-server-express";
+import {Op} from "sequelize";
 
 // Args
 import {
@@ -8,12 +9,13 @@ import {
     ConditionFunctionArgs,
     GetDeskRightsArgs,
     GetOrganizationRightsArgs,
+    getOrganizationRolesInput,
     RoleRight as RoleRightInterface,
     SelectConditionFunctionArgs
 } from "./args";
 
 // Types
-import {BeginCondition as BeginConditionTypes, ObjectTypes} from "../../types";
+import {BeginCondition as BeginConditionTypes, MyContext, ObjectTypes, PurposeTypes} from "../../types";
 
 // Models
 import {UserOrganization} from "../../models/UserOrganization";
@@ -23,6 +25,9 @@ import {Right} from "../../models/Right";
 import {UserDesk} from "../../models/UserDesk";
 import {BeginCondition} from "../../models/BeginCondition";
 import {Card} from "../../models/Card";
+import {Organization} from "../../models/Ogranization";
+import {UserOrganizationRole} from "../../models/UserOrganizationRole";
+import {User} from "../../models/User";
 
 class RightService {
     async getOrganizationRights({orgId, userId}: GetOrganizationRightsArgs): Promise<RoleRightInterface[]> {
@@ -145,9 +150,13 @@ class RightService {
         let result: any = true;
         switch (model) {
             case ObjectTypes.ROLES_OBJECT:
-                result = await Role.findOne({where: {id: reqData.options.roleId}});
-                if (!result) return false;
-                return role.rating < result.rating;
+                if (reqData.options.roleId) {
+                    result = await Role.findOne({where: {id: reqData.options.roleId}});
+                    if (!result) return false;
+                    return role.rating < result.rating;
+                } else {
+                    return result;
+                }
             default:
                 return result;
         }
@@ -169,6 +178,8 @@ class RightService {
     async checkCondition({reqData, roleRight: {beginCondition, data, role}}: CheckDistributionArgs): Promise<boolean> {
         if (beginCondition) {
             const conditionFunction: Function | null = this.selectConditionFunction({condition: beginCondition});
+
+            reqData.context.conditions ? reqData.context.conditions.push(beginCondition) : reqData.context.conditions = [beginCondition];
 
             if (!conditionFunction) return true;
 
@@ -209,6 +220,73 @@ class RightService {
         }
 
         return true;
+    }
+
+    async getOrganizationRolesInput({
+                                        conditions,
+                                        payload
+                                    }: MyContext, {orgId}: getOrganizationRolesInput): Promise<Role[] | null> {
+        const getAllRoles = async (): Promise<Role[]> => {
+            const organization: Organization | null = await Organization.findOne({
+                where: {id: orgId},
+                include: [{model: Role, where: {purpose_id: PurposeTypes.organization}}]
+            });
+
+            if (organization) {
+                return organization.roles;
+            } else {
+                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+            }
+        }
+
+        const getLowerRoles = async (): Promise<Role[] | null> => {
+            const userOrganization: UserOrganization | null = await UserOrganization.findOne({
+                where: {organization_id: orgId, user_id: payload?.userId},
+                include: [{
+                    model: Role, where: {
+                        purpose_id: PurposeTypes.organization
+                    }
+                }]
+            })
+
+            if (!userOrganization) throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+
+            const roleWithMaxRating: Role = userOrganization.roles.sort((a, b) => a.rating - b.rating)[0];
+            const organization: Organization | null = await Organization.findOne({
+                where: {id: orgId},
+                include: [{
+                    model: Role, where: {
+                        purpose_id: PurposeTypes.organization, rating: {
+                            [Op.gt]: roleWithMaxRating.rating,
+                        }
+                    }
+                }]
+            });
+
+            if (organization) {
+                return organization.roles;
+            } else {
+                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+            }
+        }
+
+        if (conditions) {
+            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
+
+            if (isGetAll) {
+                return getAllRoles();
+            }
+
+            const isGetLowerRoles: boolean = conditions.includes(BeginConditionTypes.ONLY_LOWER_STATUS);
+
+            if (isGetLowerRoles) {
+                return getLowerRoles();
+            }
+
+            return null;
+        }
+
+        return null;
     }
 }
 

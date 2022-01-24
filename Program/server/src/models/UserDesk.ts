@@ -5,7 +5,7 @@ import {Column, Table, Model, ForeignKey, DataType, HasMany, BelongsToMany} from
 import {User} from "./User";
 import {Desk} from "./Desk";
 import {UserDeskRole} from "./UserDeskRole";
-import {Field} from "type-graphql";
+import {Field, ObjectType} from "type-graphql";
 import {Role} from "./Role";
 
 interface UserDeskCreationAttrs {
@@ -14,6 +14,7 @@ interface UserDeskCreationAttrs {
     is_creator?: boolean;
 }
 
+@ObjectType()
 @Table({tableName: 'user_desk', timestamps: false})
 export class UserDesk extends Model<UserDesk, UserDeskCreationAttrs> {
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
