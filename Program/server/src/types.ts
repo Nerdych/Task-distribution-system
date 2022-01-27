@@ -14,13 +14,14 @@ export type MyContext = {
 export enum OrganizationRights {
     CREATE_DESK = 'CREATE_DESK',
     READ_DESK = 'READ_DESK',
-    UPDATE_NAME_DESK = 'UPDATE_NAME_DESK',
+    UPDATE_DESK = 'UPDATE_DESK',
     DELETE_DESK = 'DELETE_DESK',
     READ_LABELS = 'READ_LABELS',
     CREATE_LABEL = 'CREATE_LABEL',
     UPDATE_LABEL = 'UPDATE_LABEL',
     DELETE_LABEL = 'DELETE_LABEL',
-    READ_ORGANIZATION_ROLES = 'READ_ORGANIZATION_ROLES'
+    READ_ORGANIZATION_ROLES = 'READ_ORGANIZATION_ROLES',
+    READ_DESK_ROLES = 'READ_DESK_ROLES'
 }
 
 export enum DesksRights {
@@ -46,6 +47,19 @@ export enum ObjectTypes {
     LABELS_OBJECT = 'LABELS_OBJECT',
     CARDS_OBJECT = 'CARDS_OBJECT',
     ROLES_OBJECT = 'ROLES_OBJECT',
+}
+
+export enum Errors {
+    PERMISSIONS_ERROR = 'PERMISSIONS_ERROR',
+    TOKEN_ERROR = 'TOKEN_ERROR',
+    READ_ERROR = 'READ_ERROR',
+    SOMETHING_ERROR = 'SOMETHING_ERROR'
+}
+
+export enum DefaultRoles {
+    EXECUTOR = 'Исполнитель',
+    EMPLOYEE = 'Сотрудник',
+    ORGANIZATION_OWNER = 'Владелец организации'
 }
 
 

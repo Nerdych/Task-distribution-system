@@ -14,7 +14,15 @@ import DeskService from "../service/DeskService/DeskService";
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
 
 // Args
-import {CreateDeskInput, CreateDeskResponse, GetDeskInput} from "../service/DeskService/args";
+import {
+    AddUserDeskInput,
+    AddUserDeskResponse,
+    CreateDeskInput,
+    CreateDeskResponse,
+    DeleteDeskInput, DeleteDeskResponse,
+    GetDeskInput,
+    GetDesksInput, InviteDeskInput, InviteDeskResponse, UpdateDeskInput
+} from "../service/DeskService/args";
 
 // Decorators
 import {RightDecorator} from "../decorators/RightDecorator";
@@ -23,8 +31,30 @@ import {RightDecorator} from "../decorators/RightDecorator";
 export class DeskResolver {
     @Query(() => [Desk], {nullable: true})
     @UseMiddleware(AuthMiddleware)
-    async desks(@Ctx() ctx: MyContext): Promise<Desk[] | null> {
-        return await DeskService.getUserDesks(ctx);
+    @RightDecorator({organizationRights: [OrganizationRights.READ_DESK]})
+    async desks(@Ctx() ctx: MyContext, @Arg('options') options: GetDesksInput): Promise<Desk[] | null> {
+        return DeskService.getDesks(ctx, options);
+    }
+
+    @Mutation(() => Desk, {nullable: true})
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.READ_DESK]})
+    async desk(@Arg('options') options: GetDeskInput): Promise<Desk | null> {
+        return DeskService.getDesk(options);
+    }
+
+    @Mutation(() => DeleteDeskResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.DELETE_DESK]})
+    async deleteDesk(@Arg('options') options: DeleteDeskInput): Promise<DeleteDeskResponse> {
+        return DeskService.delete(options);
+    }
+
+    @Mutation(() => Desk)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.UPDATE_DESK]})
+    async updateDesk(@Arg('options') options: UpdateDeskInput): Promise<Desk> {
+        return DeskService.update(options);
     }
 
     @Mutation(() => CreateDeskResponse)
@@ -34,9 +64,16 @@ export class DeskResolver {
         return DeskService.create(ctx, options);
     }
 
-    @Mutation(() => Desk, {nullable: true})
+    @Mutation(() => InviteDeskResponse)
     @UseMiddleware(AuthMiddleware)
-    async desk(@Ctx() ctx: MyContext, @Arg('options') options: GetDeskInput): Promise<Desk | null> {
-        return DeskService.getById(ctx, options);
+    @RightDecorator({deskRights: [DesksRights.INVITE_USER_ON_DESK]})
+    async inviteUser(@Ctx() ctx: MyContext, @Arg('options') options: InviteDeskInput): Promise<InviteDeskResponse> {
+        return DeskService.invite(ctx, options);
+    }
+
+    @Mutation(() => AddUserDeskResponse)
+    @UseMiddleware(AuthMiddleware)
+    async addUser(@Ctx() ctx: MyContext, @Arg('options') options: AddUserDeskInput): Promise<AddUserDeskResponse> {
+        return DeskService.addUser(ctx, options);
     }
 }

@@ -43,5 +43,5 @@ export class Organization extends Model<Organization, OrganizationCreationAttrs>
 
     @Field(() => [User])
     @BelongsToMany(() => User, () => UserOrganization)
-    users: Array<User & { UserOrganization: UserOrganization }>;
+    users: Array<User>;
 }

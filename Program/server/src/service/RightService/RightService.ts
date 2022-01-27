@@ -7,7 +7,7 @@ import {
     CheckDistributionArgs,
     CompareRightsArgs,
     ConditionFunctionArgs,
-    GetDeskRightsArgs,
+    GetDeskRightsArgs, getDeskRolesInput,
     GetOrganizationRightsArgs,
     getOrganizationRolesInput,
     RoleRight as RoleRightInterface,
@@ -26,8 +26,6 @@ import {UserDesk} from "../../models/UserDesk";
 import {BeginCondition} from "../../models/BeginCondition";
 import {Card} from "../../models/Card";
 import {Organization} from "../../models/Ogranization";
-import {UserOrganizationRole} from "../../models/UserOrganizationRole";
-import {User} from "../../models/User";
 
 class RightService {
     async getOrganizationRights({orgId, userId}: GetOrganizationRightsArgs): Promise<RoleRightInterface[]> {
@@ -120,13 +118,22 @@ class RightService {
         let result: any = true;
         switch (model) {
             case ObjectTypes.DESKS_OBJECT:
-                result = await UserDesk.findOne({where: {desk_id: reqData.options.deskId, user_id: reqData.user.id}});
-                return result.is_creator;
+                if (reqData.options.deskId) {
+                    result = await UserDesk.findOne({
+                        where: {
+                            desk_id: reqData.options.deskId,
+                            user_id: reqData.user.id
+                        }
+                    });
+                    return result.is_creator;
+                } else {
+                    return true
+                }
             case ObjectTypes.CARDS_OBJECT:
                 result = await Card.findOne({where: {id: reqData.options.cardId}});
                 // TODO выбрать создателя карточки
                 return true;
-            // return result.;
+                // return result.;
             default:
                 return result;
         }
@@ -136,11 +143,24 @@ class RightService {
         let result: any = true;
         switch (model) {
             case ObjectTypes.DESKS_OBJECT:
-                result = await UserDesk.findOne({where: {user_id: reqData.user.id, desk_id: reqData.options.deskId}});
-                return !!result;
+                if (reqData.options.deskId) {
+                    result = await UserDesk.findOne({
+                        where: {
+                            user_id: reqData.user.id,
+                            desk_id: reqData.options.deskId
+                        }
+                    });
+                    return !!result;
+                } else {
+                    return result;
+                }
             case ObjectTypes.CARDS_OBJECT:
-                result = await Card.findOne({where: {id: reqData.options.cardId}});
-                return result.user_id === reqData.user.id;
+                if (reqData.options.cardId) {
+                    result = await Card.findOne({where: {id: reqData.options.cardId}});
+                    return result.user_id === reqData.user.id;
+                } else {
+                    return result;
+                }
             default:
                 return result;
         }
@@ -281,6 +301,33 @@ class RightService {
 
             if (isGetLowerRoles) {
                 return getLowerRoles();
+            }
+
+            return null;
+        }
+
+        return null;
+    }
+
+    async getDeskRolesInput({conditions, payload}: MyContext, {orgId}: getDeskRolesInput): Promise<Role[] | null> {
+        const getAllRoles = async (): Promise<Role[]> => {
+            const organization: Organization | null = await Organization.findOne({
+                where: {id: orgId},
+                include: [{model: Role, where: {purpose_id: PurposeTypes.desk}}]
+            });
+
+            if (organization) {
+                return organization.roles;
+            } else {
+                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+            }
+        }
+
+        if (conditions) {
+            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
+
+            if (isGetAll) {
+                return getAllRoles();
             }
 
             return null;

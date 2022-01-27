@@ -7,7 +7,10 @@ import {Role} from "../../models/Role";
 
 // Types
 import {ObjectTypes} from "../../types";
+
+// Validators
 import {OrganizationFound} from "../../validators/organizationFound";
+import {DeskFound} from "../../validators/deskFound";
 
 export interface GetOrganizationRightsArgs {
     orgId: number;
@@ -50,6 +53,24 @@ export interface ConditionFunctionArgs {
 
 @InputType({description: "Get organization roles data"})
 export class getOrganizationRolesInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
+}
+
+@InputType({description: "Get desk roles data"})
+export class getDeskRolesInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
+}
+
+@InputType({description: "Create desk data"})
+export class createDeskInput {
     @Field(() => Int)
     @OrganizationFound({
         message: 'Организация с таким индентификатором не найдена'

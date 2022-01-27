@@ -22,14 +22,14 @@ class MailService {
         });
     }
 
-    async sendMail({to, html}: sendMailArgs): Promise<boolean> {
+    async sendMail({to, html, subject}: sendMailArgs): Promise<boolean> {
         if (!validateEmail(to)) {
             return false;
         }
 
         let info = await this.transporter.sendMail({
             from: 'Система распределения задач',
-            subject: "Регистрация в системе распределения задач",
+            subject,
             to,
             html,
         });

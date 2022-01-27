@@ -1,30 +1,114 @@
 // Args
 import {ApolloError} from "apollo-server-express";
+import {v4} from "uuid";
 
 // Types
-import {MyContext, PurposeTypes} from "../../types";
+import {BeginCondition as BeginConditionTypes, DefaultRoles, Errors, MyContext, PurposeTypes} from "../../types";
+
+// Constants
+import {INVITE_USER_DESK_PREFIX} from "../../init/config/constants";
+
+// Service
+import MailService from "../MailService/MailService";
 
 // Models
-import {User} from "../../models/User";
 import {Desk} from "../../models/Desk";
 import {UserDesk} from "../../models/UserDesk";
 import {Role} from "../../models/Role";
 import {Right} from "../../models/Right";
 import {RoleRight} from "../../models/RoleRight";
 import {UserDeskRole} from "../../models/UserDeskRole";
+import {Organization} from "../../models/Ogranization";
+import {User} from "../../models/User";
 
 // Args
-import {CreateDeskInput, CreateDeskResponse, GetDeskInput} from "./args";
+import {
+    AddUserDeskInput, AddUserDeskResponse,
+    CreateDeskInput,
+    CreateDeskResponse,
+    DeleteDeskInput,
+    DeleteDeskResponse,
+    GetDeskInput,
+    GetDesksInput, InviteDeskInput, InviteDeskResponse, UpdateDeskInput
+} from "./args";
+
 
 class DeskService {
-    async getUserDesks({payload}: MyContext): Promise<Desk[] | null> {
-        const user: User | null = await User.findOne({where: {id: payload?.userId}, include: [{model: Desk}]});
+    async getDesks({conditions, payload}: MyContext, {orgId}: GetDesksInput): Promise<Desk[] | null> {
+        const getAllDesks = async (): Promise<Desk[] | null> => {
+            const organization: Organization | null = await Organization.findOne({
+                where: {id: orgId},
+                include: [{model: Desk}]
+            });
 
-        if (!user) {
-            throw new ApolloError('Пользователь не найден', 'ACCOUNT_ERROR');
+            if (organization) {
+                return organization.desks;
+            } else {
+                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+            }
         }
 
-        return user.desks;
+        const getOnlyPinDesks = async (): Promise<Desk[] | null> => {
+            const organization: Organization | null = await Organization.findOne({
+                where: {id: orgId},
+                include: [{model: Desk, include: [{model: UserDesk, where: {user_id: payload?.userId}}]}]
+            });
+
+            if (organization) {
+                return organization.desks;
+            } else {
+                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+            }
+        }
+
+        const getOnlyTheirDesks = async (): Promise<Desk[] | null> => {
+            const organization: Organization | null = await Organization.findOne({
+                where: {id: orgId},
+                include: [{model: Desk, include: [{model: UserDesk, where: {is_creator: true}}]}]
+            });
+
+            if (organization) {
+                return organization.desks;
+            } else {
+                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+            }
+        }
+
+        if (conditions) {
+            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
+
+            if (isGetAll) {
+                return getAllDesks();
+            }
+
+            const isOnpyPin: boolean = conditions.includes(BeginConditionTypes.ONLY_PIN);
+
+            if (isOnpyPin) {
+                return getOnlyPinDesks();
+            }
+
+            // TODO Продумать логику получения досок с критерием "Только свои+"
+            const isOnlyTheir: boolean = conditions.includes(BeginConditionTypes.ONLY_THEIR);
+
+            if (isOnlyTheir) {
+                return getOnlyTheirDesks();
+            }
+
+            return null;
+        }
+
+        return null;
+    }
+
+    // TODO Затестить
+    async getDesk({deskId}: GetDeskInput): Promise<Desk | null> {
+        const desk: Desk | null = await Desk.findOne({where: {id: deskId}});
+
+        if (!desk) {
+            throw new ApolloError('Что то пошло не так...', Errors.READ_ERROR);
+        }
+
+        return desk;
     }
 
     async create({payload}: MyContext, {name, orgId}: CreateDeskInput): Promise<CreateDeskResponse> {
@@ -53,12 +137,96 @@ class DeskService {
         throw new ApolloError('Пользователь не найден', 'ACCOUNT_ERROR');
     }
 
-    async getById({payload}: MyContext, {id}: GetDeskInput): Promise<Desk | null> {
-        const desk: Desk | null = await Desk.findOne({where: {id}});
+    async delete({deskId}: DeleteDeskInput): Promise<DeleteDeskResponse> {
+        try {
+            await Desk.destroy({where: {id: deskId}});
+            return {message: 'Доска успешно удалена'};
+        } catch (e) {
+            throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        }
+    }
 
-        // TODO проверка на то что можно ли ваще взять то
+    async update({deskId, name}: UpdateDeskInput): Promise<Desk> {
+        try {
+            const desk: Desk | null = await Desk.findOne({where: {id: deskId}});
 
-        return desk;
+            if (!desk) {
+                throw new ApolloError('Такой доски больше не существует', 'READ_ERROR');
+            }
+
+            await desk.update({name});
+
+            return desk;
+        } catch (e) {
+            throw new ApolloError('Что то пошло не так...', 'SOMETHING_ERROR');
+        }
+    }
+
+    // TODO Затестить
+    async invite({cache}: MyContext, {deskId, userId}: InviteDeskInput): Promise<InviteDeskResponse> {
+        const user: User | null = await User.findOne({where: {id: userId}});
+
+        if (!user) {
+            throw new ApolloError('Такого пользователя больше не существует', 'READ_ERROR');
+        }
+
+        const token: string = v4();
+        cache.set(INVITE_USER_DESK_PREFIX + token, {userId, deskId}, 1000 * 60 * 60 * 24 * 2);
+
+        await MailService.sendMail({
+            to: user.email,
+            html: `<a href='http://localhost:3000/user/invite-desk/${token}'>Вас приглашают на </a>`,
+            subject: 'Приглашение на доску'
+        });
+
+        return {
+            message: `Письмо приглашения отправлено на почту ${user.email}`,
+        };
+    }
+
+    // TODO Затестить
+    async addUser({cache}: MyContext, {token}: AddUserDeskInput): Promise<AddUserDeskResponse> {
+        const value: { userId: number, deskId: number } | undefined = cache.get(token);
+
+        if (!value) {
+            throw new ApolloError('Срок действия ссылки истёк', 'TIME_ERROR');
+        }
+
+        const desk: Desk | null = await Desk.findOne({
+            where: {id: value.deskId},
+            include: [{all: true, include: [{model: Role}]}]
+        });
+
+        if (!desk) {
+            throw new ApolloError('Такой доски больше не существует', Errors.TOKEN_ERROR);
+        }
+
+        const user: User | undefined = await desk.organization.users.find(user => user.id === value.userId);
+
+        if (!user) {
+            throw new ApolloError('У вас нет доступа к данной доске', Errors.PERMISSIONS_ERROR);
+        }
+
+        const userDesk: UserDesk = await UserDesk.create({user_id: value.userId, desk_id: value.deskId});
+
+        // TODO вынести в отдельные сервис создание дефолт ролей
+        const role: Role | null = await Role.findOne({
+            where: {
+                organization_id: desk.organization_id,
+                purpose_id: PurposeTypes.desk,
+                name: DefaultRoles.EXECUTOR
+            }
+        })
+
+        if (!role) {
+            throw new ApolloError('Такой роли больше не существует', Errors.READ_ERROR);
+        }
+
+        await UserDeskRole.create({user_desk_id: userDesk.id, role_id: role.id});
+
+        return {
+            message: `Вы присоединилсь к доске ${desk.name}`
+        }
     }
 }
 

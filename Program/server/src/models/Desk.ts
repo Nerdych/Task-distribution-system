@@ -38,9 +38,15 @@ export class Desk extends Model<Desk, DeskCreationAttrs> {
     @HasMany(() => ColumnTable)
     columns: ColumnTable[];
 
+    @Field(() => [UserDesk], {nullable: true})
+    @HasMany(() => UserDesk)
+    user_desks: UserDesk[];
+
+    @Field(() => [Message], {nullable: true})
     @HasMany(() => Message)
     messages: Message[];
 
+    @Field(() => [User], {nullable: true})
     @BelongsToMany(() => User, () => UserDesk)
     users: Array<User & { UserDesk: UserDesk }>;
 }

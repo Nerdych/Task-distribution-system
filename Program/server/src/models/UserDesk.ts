@@ -38,5 +38,5 @@ export class UserDesk extends Model<UserDesk, UserDeskCreationAttrs> {
 
     @Field(() => [Role])
     @BelongsToMany(() => Role, () => UserDeskRole)
-    roles: Array<Role & { UserDeskRole: UserDeskRole }>;
+    roles: Array<Role>;
 }
