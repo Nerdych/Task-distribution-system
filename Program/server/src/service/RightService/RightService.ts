@@ -1,21 +1,20 @@
 // Core
 import {ApolloError} from "apollo-server-express";
-import {Op} from "sequelize";
 
 // Args
 import {
+    AddRolesRightArgs,
     CheckDistributionArgs,
     CompareRightsArgs,
     ConditionFunctionArgs,
-    GetDeskRightsArgs, getDeskRolesInput,
+    GetDeskRightsArgs,
     GetOrganizationRightsArgs,
-    getOrganizationRolesInput,
     RoleRight as RoleRightInterface,
     SelectConditionFunctionArgs
 } from "./args";
 
 // Types
-import {BeginCondition as BeginConditionTypes, MyContext, ObjectTypes, PurposeTypes} from "../../types";
+import {BeginCondition as BeginConditionTypes, Errors, ObjectTypes, PurposeTypes} from "../../types";
 
 // Models
 import {UserOrganization} from "../../models/UserOrganization";
@@ -25,10 +24,9 @@ import {Right} from "../../models/Right";
 import {UserDesk} from "../../models/UserDesk";
 import {BeginCondition} from "../../models/BeginCondition";
 import {Card} from "../../models/Card";
-import {Organization} from "../../models/Ogranization";
 
 class RightService {
-    async getOrganizationRights({orgId, userId}: GetOrganizationRightsArgs): Promise<RoleRightInterface[]> {
+    async getUserOrganizationRights({orgId, userId}: GetOrganizationRightsArgs): Promise<RoleRightInterface[]> {
         const userOrganization: UserOrganization | null = await UserOrganization.findOne({
             where: {
                 organization_id: orgId,
@@ -71,7 +69,12 @@ class RightService {
         return result;
     }
 
-    async getDeskRights({deskId, userId}: GetDeskRightsArgs): Promise<RoleRightInterface[]> {
+    async getAllOrganizationRights(): Promise<Right[] | null> {
+       const rights: Right[] | null = await Right.findAll({where: {purpose_id: PurposeTypes.organization}, include: {all: true}});
+       return rights;
+    }
+
+    async getUserDeskRights({deskId, userId}: GetDeskRightsArgs): Promise<RoleRightInterface[]> {
         const userDesk: UserDesk | null = await UserDesk.findOne({
             where: {
                 desk_id: deskId,
@@ -133,7 +136,7 @@ class RightService {
                 result = await Card.findOne({where: {id: reqData.options.cardId}});
                 // TODO выбрать создателя карточки
                 return true;
-                // return result.;
+            // return result.;
             default:
                 return result;
         }
@@ -242,98 +245,19 @@ class RightService {
         return true;
     }
 
-    async getOrganizationRolesInput({
-                                        conditions,
-                                        payload
-                                    }: MyContext, {orgId}: getOrganizationRolesInput): Promise<Role[] | null> {
-        const getAllRoles = async (): Promise<Role[]> => {
-            const organization: Organization | null = await Organization.findOne({
-                where: {id: orgId},
-                include: [{model: Role, where: {purpose_id: PurposeTypes.organization}}]
-            });
-
-            if (organization) {
-                return organization.roles;
-            } else {
-                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
+    async addRoleRights({roleId, rights}: AddRolesRightArgs): Promise<boolean> {
+        // try {
+            for (let i = 0; i < rights.length; i++) {
+                await RoleRight.create({
+                    role_id: roleId,
+                    right_id: rights[i].rightId,
+                    begin_condition_id: rights[i].begin_condition
+                })
             }
-        }
-
-        const getLowerRoles = async (): Promise<Role[] | null> => {
-            const userOrganization: UserOrganization | null = await UserOrganization.findOne({
-                where: {organization_id: orgId, user_id: payload?.userId},
-                include: [{
-                    model: Role, where: {
-                        purpose_id: PurposeTypes.organization
-                    }
-                }]
-            })
-
-            if (!userOrganization) throw new ApolloError('Организация не найдена', 'FIND_ERROR');
-
-            const roleWithMaxRating: Role = userOrganization.roles.sort((a, b) => a.rating - b.rating)[0];
-            const organization: Organization | null = await Organization.findOne({
-                where: {id: orgId},
-                include: [{
-                    model: Role, where: {
-                        purpose_id: PurposeTypes.organization, rating: {
-                            [Op.gt]: roleWithMaxRating.rating,
-                        }
-                    }
-                }]
-            });
-
-            if (organization) {
-                return organization.roles;
-            } else {
-                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
-            }
-        }
-
-        if (conditions) {
-            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
-
-            if (isGetAll) {
-                return getAllRoles();
-            }
-
-            const isGetLowerRoles: boolean = conditions.includes(BeginConditionTypes.ONLY_LOWER_STATUS);
-
-            if (isGetLowerRoles) {
-                return getLowerRoles();
-            }
-
-            return null;
-        }
-
-        return null;
-    }
-
-    async getDeskRolesInput({conditions, payload}: MyContext, {orgId}: getDeskRolesInput): Promise<Role[] | null> {
-        const getAllRoles = async (): Promise<Role[]> => {
-            const organization: Organization | null = await Organization.findOne({
-                where: {id: orgId},
-                include: [{model: Role, where: {purpose_id: PurposeTypes.desk}}]
-            });
-
-            if (organization) {
-                return organization.roles;
-            } else {
-                throw new ApolloError('Организация не найдена', 'FIND_ERROR');
-            }
-        }
-
-        if (conditions) {
-            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
-
-            if (isGetAll) {
-                return getAllRoles();
-            }
-
-            return null;
-        }
-
-        return null;
+            return true;
+        // } catch {
+        //     throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        // }
     }
 }
 

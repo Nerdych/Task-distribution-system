@@ -1,9 +1,11 @@
 // Core
 import {Field, InputType, InterfaceType, ObjectType} from "type-graphql";
+import {IsDateString, IsEmail, IsNotEmpty, IsPhoneNumber, Length} from "class-validator";
 
 // Models
 import {User} from "../../models/User";
-import {IsDateString, IsEmail, IsNotEmpty, IsPhoneNumber, Length} from "class-validator";
+
+// Validators
 import {isPassword} from "../../validators/isPassword";
 import {IsUserAlreadyExist} from "../../validators/isUserAlreadyExist";
 
@@ -14,22 +16,26 @@ class UserResponse {
 }
 
 @ObjectType()
-export class UserLoginResponse  {
+export class UserLoginResponse {
     @Field(() => String)
     accessToken!: string
 }
 
 @ObjectType({implements: [UserResponse]})
-export class UserRegisterResponse extends UserResponse {};
+export class UserRegisterResponse extends UserResponse {
+};
 
 @ObjectType({implements: [UserResponse]})
-export class UserForgotPasswordResponse extends UserResponse {};
+export class UserForgotPasswordResponse extends UserResponse {
+};
 
 @ObjectType({implements: [UserResponse]})
-export class UserChangePasswordResponse extends UserResponse {};
+export class UserChangePasswordResponse extends UserResponse {
+};
 
 @ObjectType({implements: [UserResponse]})
-export class UserConfirmAccountResponse extends UserResponse {};
+export class UserConfirmAccountResponse extends UserResponse {
+};
 
 @InputType({description: "Register user data"})
 export class RegisterInput implements Partial<User> {

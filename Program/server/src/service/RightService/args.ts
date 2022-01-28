@@ -1,5 +1,5 @@
 // Core
-import {ArgsDictionary, Field, InputType, Int} from "type-graphql";
+import {ArgsDictionary} from "type-graphql";
 
 // Models
 import {Right} from "../../models/Right";
@@ -8,9 +8,7 @@ import {Role} from "../../models/Role";
 // Types
 import {ObjectTypes} from "../../types";
 
-// Validators
-import {OrganizationFound} from "../../validators/organizationFound";
-import {DeskFound} from "../../validators/deskFound";
+type ReqData = ArgsDictionary;
 
 export interface GetOrganizationRightsArgs {
     orgId: number;
@@ -27,8 +25,6 @@ export interface RoleRight {
     beginCondition?: string;
     role: Role;
 }
-
-type ReqData = ArgsDictionary;
 
 export interface CompareRightsArgs {
     haveRights: RoleRight[];
@@ -51,29 +47,7 @@ export interface ConditionFunctionArgs {
     role: Role;
 }
 
-@InputType({description: "Get organization roles data"})
-export class getOrganizationRolesInput {
-    @Field(() => Int)
-    @OrganizationFound({
-        message: 'Организация с таким индентификатором не найдена'
-    })
-    orgId!: number;
-}
-
-@InputType({description: "Get desk roles data"})
-export class getDeskRolesInput {
-    @Field(() => Int)
-    @OrganizationFound({
-        message: 'Организация с таким индентификатором не найдена'
-    })
-    orgId!: number;
-}
-
-@InputType({description: "Create desk data"})
-export class createDeskInput {
-    @Field(() => Int)
-    @OrganizationFound({
-        message: 'Организация с таким индентификатором не найдена'
-    })
-    orgId!: number;
+export interface AddRolesRightArgs {
+    roleId: number;
+    rights: { rightId: number, begin_condition: number }[];
 }

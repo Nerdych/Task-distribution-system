@@ -14,24 +14,24 @@ import {AuthMiddleware} from "../middleware/AuthMiddleware";
 import {RightDecorator} from "../decorators/RightDecorator";
 
 // Args
-import {getDeskRolesInput, getOrganizationRolesInput} from "../service/RightService/args";
+import {GetDeskRolesInput, GetOrganizationRolesInput} from "../service/RolesService/args";
 
 // Service
-import RightService from "../service/RightService/RightService";
+import RolesService from "../service/RolesService/RolesService";
 
 @Resolver()
-export class RightResolver {
+export class RolesResolver {
     @Query(() => [Role])
     @UseMiddleware(AuthMiddleware)
     @RightDecorator({organizationRights: [OrganizationRights.READ_ORGANIZATION_ROLES]})
-    async organizationRoles(@Ctx() ctx: MyContext, @Arg('options') options: getOrganizationRolesInput): Promise<Role[] | null> {
-        return RightService.getOrganizationRolesInput(ctx, options);
+    async organizationRoles(@Ctx() ctx: MyContext, @Arg('options') options: GetOrganizationRolesInput): Promise<Role[] | null> {
+        return RolesService.getOrganizationRolesInput(ctx, options);
     }
 
     @Query(() => [Role])
     @UseMiddleware(AuthMiddleware)
     @RightDecorator({organizationRights: [OrganizationRights.READ_DESK_ROLES]})
-    async deskRoles(@Ctx() ctx: MyContext, @Arg('options') options: getDeskRolesInput): Promise<Role[] | null> {
-        return RightService.getDeskRolesInput(ctx, options);
+    async deskRoles(@Ctx() ctx: MyContext, @Arg('options') options: GetDeskRolesInput): Promise<Role[] | null> {
+        return RolesService.getDeskRolesInput(ctx, options);
     }
 }

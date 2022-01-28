@@ -2,26 +2,27 @@
 import {ApolloError} from "apollo-server-express";
 
 // Types
-import {MyContext, PurposeTypes} from "../../types";
+import {DefaultRoles, Errors, MyContext} from "../../types";
+
+// Args
+import {CreateOrganizationInput, CreateOrganizationResponse} from "./args";
 
 // Models
 import {User} from "../../models/User";
 import {Organization} from "../../models/Ogranization";
-
-// Args
-import {CreateOrganizationInput, CreateOrganizationResponse} from "./args";
 import {UserOrganization} from "../../models/UserOrganization";
 import {Role} from "../../models/Role";
 import {UserOrganizationRole} from "../../models/UserOrganizationRole";
-import {RoleRight} from "../../models/RoleRight";
-import {Right} from "../../models/Right";
+
+// Service
+import RolesService from "../RolesService/RolesService";
 
 class OrganizationService {
     async getUserOrganizations({payload}: MyContext): Promise<Organization[]> {
         const user: User | null = await User.findOne({where: {id: payload?.userId}, include: [{model: Organization}]});
 
         if (!user) {
-            throw new ApolloError('Пользователь не найден', 'ACCOUNT_ERROR');
+            throw new ApolloError('Пользователь не найден', Errors.PERMISSIONS_ERROR);
         }
 
         return user.organizations;
@@ -34,27 +35,16 @@ class OrganizationService {
                 user_id: payload.userId,
                 organization_id: organization.id
             })
-            const role: Role = await Role.create({
-                name: 'Владелец организации',
-                organization_id: organization.id,
-                purpose_id: PurposeTypes.organization,
-                // TODO сделать рейтинг
-                rating: 1,
-            });
-            const rights: Right[] = await Right.findAll({where: {purpose_id: PurposeTypes.organization}});
-            // TODO сделать
-            await rights.forEach(async right => {
-                await RoleRight.create({right_id: right.id, role_id: role.id, begin_condition_id: 1});
-            });
+
+            const role: Role = await RolesService.createDefaultRole({role: DefaultRoles.ORGANIZATION_OWNER, orgId: organization.id});
             await UserOrganizationRole.create({user_organization_id: userOrganization.id, role_id: role.id});
 
             return {
                 message: 'Организация успешно создана'
             }
-        }
-        ;
+        };
 
-        throw new ApolloError('Что то пошло не так...', 'SOMETHING_ERROR');
+        throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
     }
 }
 

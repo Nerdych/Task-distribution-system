@@ -31,13 +31,13 @@ export function RightDecorator({organizationRights = [], deskRights = []}: Right
         let userOrganizationRights: RoleRightInterface[] = [];
         let userDesksRights: RoleRightInterface[] = [];
 
-        userOrganizationRights = await RightService.getOrganizationRights({
+        userOrganizationRights = await RightService.getUserOrganizationRights({
             orgId: args.options.orgId,
             userId: user.id
         });
 
         if (deskRights?.length) {
-            userDesksRights = await RightService.getDeskRights({
+            userDesksRights = await RightService.getUserDeskRights({
                 deskId: args.options.deskId,
                 userId: user.id
             });
