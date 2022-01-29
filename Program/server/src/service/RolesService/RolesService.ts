@@ -24,9 +24,10 @@ import {BeginCondition} from "../../models/BeginCondition";
 
 // Service
 import RightService from "../RightService/RightService";
+import {RoleRight} from "../../models/RoleRight";
 
 class RolesService {
-    async getOrganizationRolesInput({conditions, payload}: MyContext, {orgId}: GetOrganizationRolesInput): Promise<Role[] | null> {
+    async getOrganizationRolesInput({payload}: MyContext, {orgId}: GetOrganizationRolesInput): Promise<Role[] | null> {
         const getAllRoles = async (): Promise<Role[]> => {
             const organization: Organization | null = await Organization.findOne({
                 where: {id: orgId},
@@ -71,6 +72,36 @@ class RolesService {
             }
         }
 
+        if (!payload?.userId) {
+            throw new ApolloError('Ошибка авторизации', Errors.TOKEN_ERROR);
+        }
+
+        const userOrganization: UserOrganization | null = await UserOrganization.findOne({
+            where: {
+                user_id: payload.userId,
+                organization_id: orgId
+            }, include: {model: Role, include: [{model: RoleRight, include: [{model: BeginCondition}]}]}
+        })
+
+        if (!userOrganization) {
+            throw new ApolloError('Нет прав для доступа к данной организации', Errors.PERMISSIONS_ERROR);
+        }
+
+        const needRight: Right | null = await Right.findOne({where: {code: OrganizationRights.READ_ORGANIZATION_ROLES}});
+
+        if (!needRight) {
+            throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+        }
+
+        const conditions: BeginConditionTypes[] | null = userOrganization.roles.reduce((acc: BeginConditionTypes[], role) => {
+            const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
+            if (findRight) {
+                return [...acc, findRight.begin_condition.code]
+            } else {
+                return acc
+            }
+        }, []);
+
         if (conditions) {
             const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
 
@@ -90,7 +121,7 @@ class RolesService {
         return null;
     }
 
-    async getDeskRolesInput({conditions, payload}: MyContext, {orgId}: GetDeskRolesInput): Promise<Role[] | null> {
+    async getDeskRolesInput({payload}: MyContext, {orgId}: GetDeskRolesInput): Promise<Role[] | null> {
         const getAllRoles = async (): Promise<Role[]> => {
             const organization: Organization | null = await Organization.findOne({
                 where: {id: orgId},
@@ -103,6 +134,37 @@ class RolesService {
                 throw new ApolloError('Организация не найдена', Errors.READ_ERROR);
             }
         }
+
+        // TODO вынести в отдельный метод
+        if (!payload?.userId) {
+            throw new ApolloError('Ошибка авторизации', Errors.TOKEN_ERROR);
+        }
+
+        const userOrganization: UserOrganization | null = await UserOrganization.findOne({
+            where: {
+                user_id: payload.userId,
+                organization_id: orgId
+            }, include: {model: Role, include: [{model: RoleRight, include: [{model: BeginCondition}]}]}
+        })
+
+        if (!userOrganization) {
+            throw new ApolloError('Нет прав для доступа к данной организации', Errors.PERMISSIONS_ERROR);
+        }
+
+        const needRight: Right | null = await Right.findOne({where: {code: OrganizationRights.READ_DESK_ROLES}});
+
+        if (!needRight) {
+            throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+        }
+
+        const conditions: BeginConditionTypes[] | null = userOrganization.roles.reduce((acc: BeginConditionTypes[], role) => {
+            const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
+            if (findRight) {
+                return [...acc, findRight.begin_condition.code]
+            } else {
+                return acc
+            }
+        }, []);
 
         if (conditions) {
             const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);

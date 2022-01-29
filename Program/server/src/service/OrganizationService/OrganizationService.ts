@@ -37,7 +37,6 @@ class OrganizationService {
         return user.organizations;
     }
 
-    // TODO Затестить
     async getOrganization(ctx: MyContext, {orgId}: GetOrganizationInput): Promise<GetOrganizationResponse> {
         const organization: Organization | null = await Organization.findOne({
             where: {id: orgId},

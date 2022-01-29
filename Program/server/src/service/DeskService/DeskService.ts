@@ -48,6 +48,7 @@ import RolesService from "../RolesService/RolesService";
 import {UserOrganization} from "../../models/UserOrganization";
 import {Right} from "../../models/Right";
 import {RoleRight} from "../../models/RoleRight";
+import {BeginCondition} from "../../models/BeginCondition";
 
 
 class DeskService {
@@ -99,7 +100,7 @@ class DeskService {
             where: {
                 user_id: payload.userId,
                 organization_id: orgId
-            }, include: {model: Role, include: [{all: true}]}
+            }, include: {model: Role, include: [{model: RoleRight, include: [{model: BeginCondition}]}]}
         })
 
         if (!userOrganization) {
@@ -112,7 +113,6 @@ class DeskService {
             throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
         }
 
-        // TODO затестить
         const conditions: BeginConditionTypes[] | null = userOrganization.roles.reduce((acc: BeginConditionTypes[], role) => {
             const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
             if (findRight) {

@@ -8,7 +8,6 @@ export type MyContext = {
     res: Response,
     cache: NodeCache,
     payload?: JwtPayload & { userId?: number },
-    conditions?: BeginCondition[]
 };
 
 export enum OrganizationRights {

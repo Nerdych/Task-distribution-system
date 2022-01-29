@@ -207,8 +207,6 @@ class RightService {
         if (beginCondition) {
             const conditionFunction: Function | null = this.selectConditionFunction({condition: beginCondition});
 
-            reqData.context.conditions ? reqData.context.conditions.push(beginCondition) : reqData.context.conditions = [beginCondition];
-
             if (!conditionFunction) return true;
 
             switch (data.object.code) {
