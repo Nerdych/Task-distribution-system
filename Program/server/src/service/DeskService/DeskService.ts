@@ -3,7 +3,14 @@ import {ApolloError} from "apollo-server-express";
 import {v4} from "uuid";
 
 // Types
-import {BeginCondition as BeginConditionTypes, DefaultRoles, Errors, MyContext, PurposeTypes} from "../../types";
+import {
+    BeginCondition as BeginConditionTypes,
+    DefaultRoles,
+    Errors,
+    MyContext,
+    OrganizationRights,
+    PurposeTypes
+} from "../../types";
 
 // Constants
 import {INVITE_USER_DESK_PREFIX} from "../../init/config/constants";
@@ -15,26 +22,36 @@ import MailService from "../MailService/MailService";
 import {Desk} from "../../models/Desk";
 import {UserDesk} from "../../models/UserDesk";
 import {Role} from "../../models/Role";
-import {Right} from "../../models/Right";
-import {RoleRight} from "../../models/RoleRight";
 import {UserDeskRole} from "../../models/UserDeskRole";
 import {Organization} from "../../models/Ogranization";
 import {User} from "../../models/User";
 
 // Args
 import {
-    AddUserDeskInput, AddUserDeskResponse,
+    AddUserDeskInput,
+    AddUserDeskResponse,
     CreateDeskInput,
     CreateDeskResponse,
     DeleteDeskInput,
     DeleteDeskResponse,
     GetDeskInput,
-    GetDesksInput, InviteDeskInput, InviteDeskResponse, UpdateDeskInput
+    GetDesksInput,
+    InviteDeskInput,
+    InviteDeskResponse,
+    UpdateDeskInput
 } from "./args";
+
+// Service
+import RolesService from "../RolesService/RolesService";
+
+// Models
+import {UserOrganization} from "../../models/UserOrganization";
+import {Right} from "../../models/Right";
+import {RoleRight} from "../../models/RoleRight";
 
 
 class DeskService {
-    async getDesks({conditions, payload}: MyContext, {orgId}: GetDesksInput): Promise<Desk[] | null> {
+    async getDesks({payload}: MyContext, {orgId}: GetDesksInput): Promise<Desk[] | null> {
         const getAllDesks = async (): Promise<Desk[] | null> => {
             const organization: Organization | null = await Organization.findOne({
                 where: {id: orgId},
@@ -74,6 +91,37 @@ class DeskService {
             }
         }
 
+        if (!payload?.userId) {
+            throw new ApolloError('Ошибка авторизации', Errors.TOKEN_ERROR);
+        }
+
+        const userOrganization: UserOrganization | null = await UserOrganization.findOne({
+            where: {
+                user_id: payload.userId,
+                organization_id: orgId
+            }, include: {model: Role, include: [{all: true}]}
+        })
+
+        if (!userOrganization) {
+            throw new ApolloError('Нет прав для доступа к данной организации', Errors.PERMISSIONS_ERROR);
+        }
+
+        const needRight: Right | null = await Right.findOne({where: {code: OrganizationRights.READ_DESK}});
+
+        if (!needRight) {
+            throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+        }
+
+        // TODO затестить
+        const conditions: BeginConditionTypes[] | null = userOrganization.roles.reduce((acc: BeginConditionTypes[], role) => {
+            const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
+            if (findRight) {
+                return [...acc, findRight.begin_condition.code]
+            } else {
+                return acc
+            }
+        }, []);
+
         if (conditions) {
             const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
 
@@ -111,22 +159,13 @@ class DeskService {
         return desk;
     }
 
+    // TODO Затестить
     async create({payload}: MyContext, {name, orgId}: CreateDeskInput): Promise<CreateDeskResponse> {
         if (payload?.userId) {
             const desk: Desk = await Desk.create({name, organization_id: orgId});
-            const userDesk: UserDesk = await UserDesk.create({user_id: payload?.userId, desk_id: desk.id});
-            const role: Role = await Role.create({
-                name: 'Создатель карточки',
-                organization_id: orgId,
-                purpose_id: PurposeTypes.desk,
-                // TODO РЕЙТИНГ СДЕЛАТЬ
-                rating: 1,
-            });
-            const rights: Right[] = await Right.findAll({where: {purpose_id: PurposeTypes.desk}});
-            // TODO сделать
-            await rights.forEach(async right => {
-                await RoleRight.create({right_id: right.id, role_id: role.id, begin_condition_id: 1});
-            });
+            const userDesk: UserDesk = await UserDesk.create({user_id: payload.userId, desk_id: desk.id});
+
+            const role: Role = await RolesService.createDefaultRole({role: DefaultRoles.DESK_OWNER, orgId});
             await UserDeskRole.create({user_desk_id: userDesk.id, role_id: role.id});
 
             return {

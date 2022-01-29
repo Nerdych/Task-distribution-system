@@ -61,7 +61,7 @@ export class Role extends Model<Role, RoleCreationAttrs> {
 
     @Field(() => [Right], {nullable: true})
     @BelongsToMany(() => Right, () => RoleRight)
-    rights: Array<Right & { RoleRight: RoleRight }>;
+    rights: Array<Right>;
 
     @Field(() => [UserOrganization], {nullable: true})
     @BelongsToMany(() => UserOrganization, () => UserOrganizationRole)

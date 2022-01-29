@@ -8,7 +8,7 @@ import {CreateDefaultRoleArgs, GetDeskRolesInput, GetOrganizationRolesInput} fro
 // Types
 import {
     BeginCondition as BeginConditionTypes,
-    DefaultRoles,
+    DefaultRoles, DesksRights,
     Errors,
     MyContext,
     OrganizationRights,
@@ -163,6 +163,37 @@ class RolesService {
                                 case OrganizationRights.READ_DESK:
                                 case OrganizationRights.READ_LABELS:
                                 case OrganizationRights.READ_ORGANIZATION_ROLES:
+                                    return {
+                                        rightId: right.id,
+                                        begin_condition: beginConditions.find(condition => condition.code === BeginConditionTypes.ALL)!.id
+                                    };
+                                default:
+                                    return {
+                                        rightId: right.id,
+                                        begin_condition: beginConditions.find(condition => condition.code === BeginConditionTypes.YES)!.id
+                                    };
+                            }
+                        })
+                    })
+                }
+                return role;
+            }
+            case DefaultRoles.DESK_OWNER: {
+                const role: Role = await Role.create({
+                    name: DefaultRoles.DESK_OWNER,
+                    rating: 1,
+                    purpose_id: PurposeTypes.desk,
+                    organization_id: orgId
+                });
+
+                const rights: Right[] | null = await RightService.getAllDeskRights();
+                const beginConditions: BeginCondition[] | null = await BeginCondition.findAll();
+
+                if (rights && beginConditions) {
+                    await RightService.addRoleRights({
+                        roleId: role.id, rights: rights.map(right => {
+                            switch (right.code) {
+                                case DesksRights.READ_ROLES_ON_DESK:
                                     return {
                                         rightId: right.id,
                                         begin_condition: beginConditions.find(condition => condition.code === BeginConditionTypes.ALL)!.id

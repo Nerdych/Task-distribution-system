@@ -10,6 +10,12 @@ import {ObjectTypes} from "../../types";
 
 type ReqData = ArgsDictionary;
 
+export interface RoleRight {
+    data: Right;
+    beginCondition?: string;
+    role: Role;
+}
+
 export interface GetOrganizationRightsArgs {
     orgId: number;
     userId: number;
@@ -18,12 +24,6 @@ export interface GetOrganizationRightsArgs {
 export interface GetDeskRightsArgs {
     deskId: number;
     userId: number;
-}
-
-export interface RoleRight {
-    data: Right;
-    beginCondition?: string;
-    role: Role;
 }
 
 export interface CompareRightsArgs {

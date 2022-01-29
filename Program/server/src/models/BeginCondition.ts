@@ -2,6 +2,9 @@
 import {Column, Table, Model, DataType} from 'sequelize-typescript';
 import {Field, ID, ObjectType} from "type-graphql";
 
+// Types
+import {BeginCondition as BeginConditionTypes} from "../types";
+
 interface BeginConditionCreationAttrs {
     name: string;
     code: string;
@@ -20,5 +23,5 @@ export class BeginCondition extends Model<BeginCondition, BeginConditionCreation
 
     @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false, unique: true})
-    code!: string;
+    code!: BeginConditionTypes;
 }

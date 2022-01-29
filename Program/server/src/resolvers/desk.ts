@@ -36,7 +36,7 @@ export class DeskResolver {
         return DeskService.getDesks(ctx, options);
     }
 
-    @Mutation(() => Desk, {nullable: true})
+    @Query(() => Desk, {nullable: true})
     @UseMiddleware(AuthMiddleware)
     @RightDecorator({organizationRights: [OrganizationRights.READ_DESK]})
     async desk(@Arg('options') options: GetDeskInput): Promise<Desk | null> {

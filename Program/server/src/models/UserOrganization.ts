@@ -47,5 +47,5 @@ export class UserOrganization extends Model<UserOrganization, UserOrganizationCr
 
     @Field(() => [Role])
     @BelongsToMany(() => Role, () => UserOrganizationRole)
-    roles: Array<Role & { UserOrganizationRole: UserOrganizationRole }>;
+    roles: Array<Role>;
 }

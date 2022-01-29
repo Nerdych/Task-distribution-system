@@ -21,12 +21,15 @@ export enum OrganizationRights {
     UPDATE_LABEL = 'UPDATE_LABEL',
     DELETE_LABEL = 'DELETE_LABEL',
     READ_ORGANIZATION_ROLES = 'READ_ORGANIZATION_ROLES',
-    READ_DESK_ROLES = 'READ_DESK_ROLES'
+    READ_DESK_ROLES = 'READ_DESK_ROLES',
+    READ_ORGANIZATION_INFO = 'READ_ORGANIZATION_INFO',
+    UPDATE_ORGANIZATION = 'UPDATE_ORGANIZATION'
 }
 
 export enum DesksRights {
     INVITE_USER_ON_DESK = 'INVITE_USER_ON_DESK',
     READ_ROLES_ON_DESK = 'READ_ROLES_ON_DESK',
+    READ_DESK_INFO = 'READ_DESK_INFO'
 }
 
 export enum BeginCondition {
@@ -47,6 +50,7 @@ export enum ObjectTypes {
     LABELS_OBJECT = 'LABELS_OBJECT',
     CARDS_OBJECT = 'CARDS_OBJECT',
     ROLES_OBJECT = 'ROLES_OBJECT',
+    ORGANIZATION_OBJECT = 'ORGANIZATION_OBJECT',
 }
 
 export enum Errors {
@@ -59,7 +63,8 @@ export enum Errors {
 export enum DefaultRoles {
     EXECUTOR = 'Исполнитель',
     EMPLOYEE = 'Сотрудник',
-    ORGANIZATION_OWNER = 'Владелец организации'
+    ORGANIZATION_OWNER = 'Владелец организации',
+    DESK_OWNER = 'DESK_OWNER'
 }
 
 

@@ -74,6 +74,11 @@ class RightService {
        return rights;
     }
 
+    async getAllDeskRights(): Promise<Right[] | null> {
+        const rights: Right[] | null = await Right.findAll({where: {purpose_id: PurposeTypes.desk}, include: {all: true}});
+        return rights;
+    }
+
     async getUserDeskRights({deskId, userId}: GetDeskRightsArgs): Promise<RoleRightInterface[]> {
         const userDesk: UserDesk | null = await UserDesk.findOne({
             where: {
@@ -246,7 +251,7 @@ class RightService {
     }
 
     async addRoleRights({roleId, rights}: AddRolesRightArgs): Promise<boolean> {
-        // try {
+        try {
             for (let i = 0; i < rights.length; i++) {
                 await RoleRight.create({
                     role_id: roleId,
@@ -255,9 +260,9 @@ class RightService {
                 })
             }
             return true;
-        // } catch {
-        //     throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
-        // }
+        } catch {
+            throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        }
     }
 }
 
