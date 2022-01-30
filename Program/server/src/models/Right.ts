@@ -6,9 +6,13 @@ import {Field, ID, ObjectType} from "type-graphql";
 import {Role} from "./Role";
 import {Purpose} from "./Purpose";
 import {RoleRight} from "./RoleRight";
-import {DesksRights, OrganizationRights} from "../types";
 import {ObjectTable} from "./Object";
 import {Action} from "./Action";
+
+// Types
+import {DesksRights, OrganizationRights} from "../types";
+import {BeginCondition} from "./BeginCondition";
+import {BeginConditionRight} from "./BeginConditionRight";
 
 interface RightCreationAttrs {
     name: string;
@@ -71,7 +75,15 @@ export class Right extends Model<Right, RightCreationAttrs> {
     @HasMany(() => RoleRight)
     roleRights: RoleRight[];
 
+    @Field(() => [Right], {nullable: true})
+    @HasMany(() => Right)
+    children: Right[];
+
     @Field(() => [Role], {nullable: true})
     @BelongsToMany(() => Role, () => RoleRight)
-    roles: Array<Role & { RoleRight: RoleRight }>;
+    roles: Array<Role>;
+
+    @Field(() => [BeginCondition], {nullable: true})
+    @BelongsToMany(() => BeginCondition, () => BeginConditionRight)
+    beginConditions: Array<BeginCondition>;
 }

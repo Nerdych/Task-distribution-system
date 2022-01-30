@@ -104,7 +104,7 @@ class DeskService {
         })
 
         if (!userOrganization) {
-            throw new ApolloError('Нет прав для доступа к данной организации', Errors.PERMISSIONS_ERROR);
+            throw new ApolloError('Невозможно получить доступ', Errors.PERMISSIONS_ERROR);
         }
 
         const needRight: Right | null = await Right.findOne({where: {code: OrganizationRights.READ_DESK}});

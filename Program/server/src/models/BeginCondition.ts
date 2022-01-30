@@ -13,9 +13,9 @@ interface BeginConditionCreationAttrs {
 @ObjectType()
 @Table({tableName: 'begin_conditions', timestamps: false})
 export class BeginCondition extends Model<BeginCondition, BeginConditionCreationAttrs> {
-    @Field(() => ID)
+    @Field(() => ID, {nullable: true})
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
-    id!: number;
+    id: number;
 
     @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false, unique: true})

@@ -3,7 +3,13 @@ import {ApolloError} from "apollo-server-express";
 import {Op} from "sequelize";
 
 // Args
-import {CreateDefaultRoleArgs, GetDeskRolesInput, GetOrganizationRolesInput} from "./args";
+import {
+    CreateDefaultRoleArgs,
+    GetDeskRolesInput,
+    GetOrganizationRolesInput,
+    UpdateRoleInput,
+    UpdateRolesResponse
+} from "./args";
 
 // Types
 import {
@@ -21,13 +27,13 @@ import {Role} from "../../models/Role";
 import {Organization} from "../../models/Ogranization";
 import {Right} from "../../models/Right";
 import {BeginCondition} from "../../models/BeginCondition";
+import {RoleRight} from "../../models/RoleRight";
 
 // Service
 import RightService from "../RightService/RightService";
-import {RoleRight} from "../../models/RoleRight";
 
 class RolesService {
-    async getOrganizationRolesInput({payload}: MyContext, {orgId}: GetOrganizationRolesInput): Promise<Role[] | null> {
+    async getOrganizationRoles({payload}: MyContext, {orgId}: GetOrganizationRolesInput): Promise<Role[] | null> {
         const getAllRoles = async (): Promise<Role[]> => {
             const organization: Organization | null = await Organization.findOne({
                 where: {id: orgId},
@@ -121,7 +127,7 @@ class RolesService {
         return null;
     }
 
-    async getDeskRolesInput({payload}: MyContext, {orgId}: GetDeskRolesInput): Promise<Role[] | null> {
+    async getDeskRoles({payload}: MyContext, {orgId}: GetDeskRolesInput): Promise<Role[] | null> {
         const getAllRoles = async (): Promise<Role[]> => {
             const organization: Organization | null = await Organization.findOne({
                 where: {id: orgId},
@@ -271,6 +277,14 @@ class RolesService {
                 }
                 return role;
             }
+        }
+    }
+
+    async update({roleId}: UpdateRoleInput): Promise<UpdateRolesResponse>  {
+
+
+        return {
+            message: 'Роль успешна обновлена'
         }
     }
 }

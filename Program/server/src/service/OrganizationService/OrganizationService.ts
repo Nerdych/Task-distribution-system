@@ -7,7 +7,11 @@ import {DefaultRoles, Errors, MyContext} from "../../types";
 // Args
 import {
     CreateOrganizationInput,
-    CreateOrganizationResponse, GetOrganizationInput, GetOrganizationResponse,
+    CreateOrganizationResponse,
+    DeleteOrganizationInput,
+    DeleteOrganizationResponse, GetOrganizationInfoInput,
+    GetOrganizationInput,
+    GetOrganizationResponse,
     UpdateOrganizationInput,
     UpdateOrganizationResponse
 } from "./args";
@@ -25,6 +29,7 @@ import {Desk} from "../../models/Desk";
 import RolesService from "../RolesService/RolesService";
 import DeskService from "../DeskService/DeskService";
 import RightService from "../RightService/RightService";
+import {or} from "sequelize";
 
 class OrganizationService {
     async getUserOrganizations({payload}: MyContext): Promise<Organization[]> {
@@ -48,13 +53,34 @@ class OrganizationService {
         }
 
         const desks: Desk[] | null = await DeskService.getDesks(ctx, {orgId});
-        const rights: RoleRight[] | null = await RightService.getUserOrganizationRights({orgId, userId: ctx.payload.userId});
+        const rights: RoleRight[] | null = await RightService.getUserOrganizationRights({
+            orgId,
+            userId: ctx.payload.userId
+        });
 
         return {
             name: organization.name,
             desks,
             rights
         };
+    }
+
+    async getOrganizationInfo(ctx: MyContext, {orgId}: GetOrganizationInfoInput): Promise<Organization> {
+        const organization: Organization | null = await Organization.findOne({
+            where: {id: orgId},
+            include: {all: true}
+        });
+
+        if (!organization) {
+            throw new ApolloError('Такой организации не существует', Errors.READ_ERROR);
+        }
+
+        const roles: Role[] | null = await RolesService.getOrganizationRoles(ctx, {orgId})
+
+        return {
+            ...organization,
+            roles
+        } as Organization;
     }
 
     async create({payload}: MyContext, data: CreateOrganizationInput,): Promise<CreateOrganizationResponse> {
@@ -80,12 +106,7 @@ class OrganizationService {
         throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
     }
 
-    // TODO Затестить
-    async update({payload}: MyContext, {
-        orgId,
-        name,
-        linkToInvite
-    }: UpdateOrganizationInput): Promise<UpdateOrganizationResponse> {
+    async update({orgId, name, linkToInvite}: UpdateOrganizationInput): Promise<UpdateOrganizationResponse> {
         const organization: Organization | null = await Organization.findOne({where: {id: orgId}});
 
         if (!organization) {
@@ -101,6 +122,23 @@ class OrganizationService {
             }
         } catch {
             throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        }
+    }
+
+    async delete({orgId}: DeleteOrganizationInput): Promise<DeleteOrganizationResponse> {
+        const organization: Organization | null = await Organization.findOne({where: {id: orgId}});
+
+        if (!organization) {
+            throw new ApolloError('Такой организации не существует', Errors.READ_ERROR);
+        }
+
+        try {
+            await organization.destroy();
+            return {
+                message: 'Организация успешно удалена'
+            }
+        } catch {
+            throw new ApolloError('Что то пошло не так', Errors.SOMETHING_ERROR);
         }
     }
 }

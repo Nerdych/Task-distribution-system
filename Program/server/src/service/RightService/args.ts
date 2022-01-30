@@ -1,12 +1,24 @@
 // Core
-import {ArgsDictionary} from "type-graphql";
+import {ArgsDictionary, Field, InputType, Int, ObjectType} from "type-graphql";
 
 // Models
 import {Right} from "../../models/Right";
 import {Role} from "../../models/Role";
 
 // Types
-import {ObjectTypes} from "../../types";
+import {DesksRights, ObjectTypes, OrganizationRights} from "../../types";
+
+@ObjectType()
+export class ObjectData {
+    @Field(() => String)
+    name!: string
+
+    @Field(() => String)
+    code!: string
+
+    @Field(() => [Right])
+    rights!: Right[]
+}
 
 type ReqData = ArgsDictionary;
 
@@ -50,4 +62,10 @@ export interface ConditionFunctionArgs {
 export interface AddRolesRightArgs {
     roleId: number;
     rights: { rightId: number, begin_condition: number }[];
+}
+
+@InputType({description: "Get all rights by object data"})
+export class GetAllRightsByObjectInput {
+    @Field(() => String)
+    object!: ObjectTypes.ORGANIZATION_OBJECT | ObjectTypes.DESKS_OBJECT;
 }

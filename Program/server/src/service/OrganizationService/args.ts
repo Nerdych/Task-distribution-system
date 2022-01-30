@@ -21,6 +21,9 @@ export class CreateOrganizationResponse extends OrganizationResponse {};
 @ObjectType({implements: [OrganizationResponse]})
 export class UpdateOrganizationResponse extends OrganizationResponse {};
 
+@ObjectType({implements: [OrganizationResponse]})
+export class DeleteOrganizationResponse extends OrganizationResponse {};
+
 @ObjectType()
 export class GetOrganizationResponse {
     @Field(() => String)
@@ -65,6 +68,24 @@ export class UpdateOrganizationInput {
 
 @InputType({description: "Get organization data"})
 export class GetOrganizationInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
+}
+
+@InputType({description: "Get organization info data"})
+export class GetOrganizationInfoInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
+}
+
+@InputType({description: "Delete organization data"})
+export class DeleteOrganizationInput {
     @Field(() => Int)
     @OrganizationFound({
         message: 'Организация с таким индентификатором не найдена'

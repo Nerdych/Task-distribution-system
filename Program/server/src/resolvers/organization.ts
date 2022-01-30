@@ -16,7 +16,13 @@ import {AuthMiddleware} from "../middleware/AuthMiddleware";
 // Args
 import {
     CreateOrganizationInput,
-    CreateOrganizationResponse, GetOrganizationInput, GetOrganizationResponse, UpdateOrganizationInput,
+    CreateOrganizationResponse,
+    DeleteOrganizationInput,
+    DeleteOrganizationResponse,
+    GetOrganizationInfoInput,
+    GetOrganizationInput,
+    GetOrganizationResponse,
+    UpdateOrganizationInput,
     UpdateOrganizationResponse
 } from "../service/OrganizationService/args";
 import {RightDecorator} from "../decorators/RightDecorator";
@@ -31,8 +37,16 @@ export class OrganizationResolver {
 
     @Query(() => Organization, {nullable: true})
     @UseMiddleware(AuthMiddleware)
+    @RightDecorator({})
     async organization(@Ctx() ctx: MyContext, @Arg('options') options: GetOrganizationInput): Promise<GetOrganizationResponse> {
         return OrganizationService.getOrganization(ctx, options);
+    }
+
+    @Query(() => Organization, {nullable: true})
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.READ_ORGANIZATION_INFO]})
+    async organizationInfo(@Ctx() ctx: MyContext, @Arg('options') options: GetOrganizationInfoInput): Promise<Organization> {
+        return OrganizationService.getOrganizationInfo(ctx, options);
     }
 
     @Mutation(() => CreateOrganizationResponse)
@@ -42,9 +56,16 @@ export class OrganizationResolver {
     }
 
     @Mutation(() => UpdateOrganizationResponse)
-    @RightDecorator({organizationRights: [OrganizationRights.UPDATE_ORGANIZATION]})
     @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.UPDATE_ORGANIZATION]})
     async updateOrganization(@Ctx() ctx: MyContext, @Arg('options') options: UpdateOrganizationInput): Promise<UpdateOrganizationResponse> {
-        return OrganizationService.update(ctx, options);
+        return OrganizationService.update(options);
+    }
+
+    @Mutation(() => DeleteOrganizationResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.DELETE_ORGANIZATION]})
+    async deleteOrganization(@Ctx() ctx: MyContext, @Arg('options') options: DeleteOrganizationInput): Promise<DeleteOrganizationResponse> {
+        return OrganizationService.delete(options);
     }
 }

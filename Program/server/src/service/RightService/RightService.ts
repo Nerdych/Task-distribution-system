@@ -7,8 +7,10 @@ import {
     CheckDistributionArgs,
     CompareRightsArgs,
     ConditionFunctionArgs,
+    GetAllRightsByObjectInput,
     GetDeskRightsArgs,
     GetOrganizationRightsArgs,
+    ObjectData,
     RoleRight as RoleRightInterface,
     SelectConditionFunctionArgs
 } from "./args";
@@ -69,13 +71,29 @@ class RightService {
         return result;
     }
 
-    async getAllOrganizationRights(): Promise<Right[] | null> {
-       const rights: Right[] | null = await Right.findAll({where: {purpose_id: PurposeTypes.organization}, include: {all: true}});
-       return rights;
+    async getAllOrganizationRights(): Promise<Right[]> {
+        const rights: Right[] | null = await Right.findAll({
+            where: {purpose_id: PurposeTypes.organization},
+            include: [{all: true, include: [{model: Right}]}]
+        });
+
+        if (!rights) {
+            throw new ApolloError('Таких прав нет', Errors.READ_ERROR);
+        }
+
+        return rights;
     }
 
-    async getAllDeskRights(): Promise<Right[] | null> {
-        const rights: Right[] | null = await Right.findAll({where: {purpose_id: PurposeTypes.desk}, include: {all: true}});
+    async getAllDeskRights(): Promise<Right[]> {
+        const rights: Right[] | null = await Right.findAll({
+            where: {purpose_id: PurposeTypes.desk},
+            include: {all: true}
+        });
+
+        if (!rights) {
+            throw new ApolloError('Таких прав нет', Errors.READ_ERROR);
+        }
+
         return rights;
     }
 
@@ -261,6 +279,52 @@ class RightService {
         } catch {
             throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
         }
+    }
+
+    async getAllRightsByObject({object}: GetAllRightsByObjectInput): Promise<ObjectData[]> {
+        let rights: Right[] = [];
+        let result: ObjectData[] = [];
+        switch (object) {
+            case ObjectTypes.ORGANIZATION_OBJECT:
+                rights = await this.getAllOrganizationRights();
+                break;
+            case ObjectTypes.DESKS_OBJECT:
+                rights = await this.getAllDeskRights();
+                break;
+            default:
+                throw new ApolloError('Прав для такого объекта не существует', Errors.READ_ERROR)
+        }
+
+        result = rights.reduce((acc: ObjectData[], right: Right) => {
+            const candidate: ObjectData | undefined = acc.find(a => a.code === right.object.code);
+
+            right.beginConditions.push({code: BeginConditionTypes.NO, name: 'Нет'} as BeginCondition);
+
+            if (candidate) {
+                if (!right.parent && !right.children) {
+                    candidate.rights.push(right);
+                    return acc;
+                }
+
+                if (!right.parent) {
+                    candidate.rights.push(right);
+                    // candidate.rights[rights.length - 1].ch
+                }
+
+                candidate.rights.push(right);
+                return acc;
+            }
+
+            acc.push({
+                name: right.object.name,
+                code: right.object.code,
+                rights: [right]
+            })
+            return acc;
+
+        }, [])
+
+        return result;
     }
 }
 
