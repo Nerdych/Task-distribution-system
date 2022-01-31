@@ -7,8 +7,8 @@ import {
     CreateDefaultRoleArgs,
     GetDeskRolesInput,
     GetOrganizationRolesInput,
-    UpdateRoleInput,
-    UpdateRolesResponse
+    CreateRoleInput,
+    CreateRoleResponse, UpdateRoleInput, UpdateRoleResponse, DeleteRoleInput, DeleteRoleResponse
 } from "./args";
 
 // Types
@@ -280,11 +280,125 @@ class RolesService {
         }
     }
 
-    async update({roleId}: UpdateRoleInput): Promise<UpdateRolesResponse>  {
+    async create({orgId, rights, purposeId, rating, name}: CreateRoleInput): Promise<CreateRoleResponse> {
+        const role: Role = await Role.create({name, rating, purpose_id: purposeId!, organization_id: orgId});
+
+        for (let i = 0; i < rights.length; i++) {
+            const right: Right | null = await Right.findOne({where: {id: rights[i].id}, include: [{all: true}]});
+
+            if (!right) {
+                throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+            }
+
+            if (right.purpose_id !== purposeId) {
+                throw new ApolloError('Невозможно добавить данное право к данной роли', Errors.SOMETHING_ERROR);
+            }
+
+            if (!right.beginConditions.find(beginCondition => beginCondition.id === rights[i].beginConditionId)) {
+                throw new ApolloError('Невозможно добавить данное значение к данной роли', Errors.SOMETHING_ERROR);
+            }
+
+            await RoleRight.create({
+                role_id: role.id,
+                right_id: rights[i].id,
+                begin_condition_id: rights[i].beginConditionId
+            });
+        }
 
 
         return {
+            message: 'Роль успешна создана'
+        }
+    }
+
+    async update({name, rating, rights, purposeId, roleId}: UpdateRoleInput): Promise<UpdateRoleResponse> {
+        const role: Role | null = await Role.findOne({where: {id: roleId}});
+
+        if (!role) {
+            throw new ApolloError('Такой роли не существует', Errors.READ_ERROR);
+        }
+
+        const updateObj: { name?: string, rating?: number } = {};
+
+        if (name) {
+            updateObj.name = name;
+        }
+
+        if (rating) {
+            updateObj.rating = rating;
+        }
+
+        try {
+            await role.update(updateObj);
+        } catch {
+            throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        }
+
+        if (rights) {
+            for (let i = 0; i < rights.length; i++) {
+                const right: Right | null = await Right.findOne({
+                    where: {id: rights[i].id},
+                    include: [{all: true}]
+                });
+
+                if (!right) {
+                    throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+                }
+
+                // TODO если пэрэнта нет а мы пытаемся изменить ребенка
+                // if (right.parent) {
+                //     if (!role.rights.find(a => a.code === right.parent.code)) {
+                //         throw new ApolloError('Невозможно добавить данное право к данной роли', Errors.SOMETHING_ERROR);
+                //     }
+                // }
+
+                if (right.purpose_id !== purposeId) {
+                    throw new ApolloError('Невозможно добавить данное право к данной роли', Errors.SOMETHING_ERROR);
+                }
+
+                if (!right.beginConditions.find(beginCondition => beginCondition.id === rights[i].beginConditionId) && rights[i].beginConditionId) {
+                    throw new ApolloError('Невозможно добавить данное значение к данной роли', Errors.SOMETHING_ERROR);
+                }
+
+                const roleRight: RoleRight | null = await RoleRight.findOne({
+                    where: {
+                        role_id: roleId,
+                        right_id: right.id
+                    }
+                });
+
+                if (roleRight) {
+                    if (!rights[i].beginConditionId) {
+                        await roleRight.destroy();
+                    } else {
+                        await roleRight.update({begin_condition_id: rights[i].beginConditionId});
+                    }
+                } else {
+                    await RoleRight.create({
+                        role_id: role.id,
+                        right_id: rights[i].id,
+                        begin_condition_id: rights[i].beginConditionId!
+                    });
+                }
+            }
+        }
+
+        return {
             message: 'Роль успешна обновлена'
+        }
+    }
+
+    async delete({roleId}: DeleteRoleInput): Promise<DeleteRoleResponse> {
+        const role: Role | null = await Role.findOne({where: {id: roleId}});
+
+        if (!role) {
+            throw new ApolloError('Такой роли не существует', Errors.READ_ERROR);
+        }
+
+        await role.destroy();
+
+        return {
+            message: 'Роль успешна удалена'
         }
     }
 }

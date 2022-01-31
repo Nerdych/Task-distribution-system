@@ -11,8 +11,8 @@ import {GraphQLError} from "graphql";
 import {UserResolver} from "../resolvers/user";
 import {OrganizationResolver} from "../resolvers/organization";
 import {DeskResolver} from "../resolvers/desk";
-import {RolesResolver} from "../resolvers/roles";
-import {RightResolver} from "../resolvers/rights";
+import {RolesResolver} from "../resolvers/role";
+import {RightResolver} from "../resolvers/right";
 
 interface startApolloServerArgs {
     cache: NodeCache

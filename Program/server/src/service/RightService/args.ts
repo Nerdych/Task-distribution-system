@@ -17,7 +17,7 @@ export class ObjectData {
     code!: string
 
     @Field(() => [Right])
-    rights!: Right[]
+    rights!: (Right & {children?: Right[]})[]
 }
 
 type ReqData = ArgsDictionary;

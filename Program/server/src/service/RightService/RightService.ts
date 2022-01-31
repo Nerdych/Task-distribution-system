@@ -74,7 +74,7 @@ class RightService {
     async getAllOrganizationRights(): Promise<Right[]> {
         const rights: Right[] | null = await Right.findAll({
             where: {purpose_id: PurposeTypes.organization},
-            include: [{all: true, include: [{model: Right}]}]
+            include: [{all: true}]
         });
 
         if (!rights) {
@@ -295,34 +295,34 @@ class RightService {
                 throw new ApolloError('Прав для такого объекта не существует', Errors.READ_ERROR)
         }
 
-        result = rights.reduce((acc: ObjectData[], right: Right) => {
-            const candidate: ObjectData | undefined = acc.find(a => a.code === right.object.code);
+        const parentRights: any = rights.filter(right => !right.parent);
+        const childRights: any = rights.filter(right => right.parent);
 
-            right.beginConditions.push({code: BeginConditionTypes.NO, name: 'Нет'} as BeginCondition);
+        result = parentRights.reduce((acc: ObjectData[], parentRight: Right) => {
+            const candidate: ObjectData | undefined = acc.find(a => a.code === parentRight.object.code);
+
+            parentRight.beginConditions.push({code: BeginConditionTypes.NO, name: 'Нет'} as BeginCondition)
+            parentRight.children = [];
 
             if (candidate) {
-                if (!right.parent && !right.children) {
-                    candidate.rights.push(right);
-                    return acc;
-                }
-
-                if (!right.parent) {
-                    candidate.rights.push(right);
-                    // candidate.rights[rights.length - 1].ch
-                }
-
-                candidate.rights.push(right);
+                candidate.rights.push(parentRight);
                 return acc;
             }
 
             acc.push({
-                name: right.object.name,
-                code: right.object.code,
-                rights: [right]
+                name: parentRight.object.name,
+                code: parentRight.object.code,
+                rights: [parentRight],
             })
-            return acc;
 
-        }, [])
+            return acc;
+        }, []);
+
+        childRights.forEach((childRight: Right) => {
+            const parent: Right | undefined = result.find(a => a.code === childRight.object.code)?.rights.find(a => a.code === childRight.parent.code);
+            childRight.beginConditions.push({code: BeginConditionTypes.NO, name: 'Нет'} as BeginCondition)
+            parent?.children.push(childRight);
+        })
 
         return result;
     }
