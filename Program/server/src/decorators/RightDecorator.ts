@@ -36,6 +36,8 @@ export function RightDecorator({organizationRights = [], deskRights = []}: Right
             userId: user.id
         });
 
+        // TODO проверить то что мы передали является ли компонентов именно этой организации
+
         if (deskRights?.length) {
             userDesksRights = await RightService.getUserDeskRights({
                 deskId: args.options.deskId,

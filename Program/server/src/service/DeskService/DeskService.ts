@@ -42,14 +42,13 @@ import {
 } from "./args";
 
 // Service
-import RolesService from "../RolesService/RolesService";
+import RoleService from "../RoleService/RoleService";
 
 // Models
 import {UserOrganization} from "../../models/UserOrganization";
 import {Right} from "../../models/Right";
 import {RoleRight} from "../../models/RoleRight";
 import {BeginCondition} from "../../models/BeginCondition";
-
 
 class DeskService {
     async getDesks({payload}: MyContext, {orgId}: GetDesksInput): Promise<Desk[] | null> {
@@ -165,7 +164,7 @@ class DeskService {
             const desk: Desk = await Desk.create({name, organization_id: orgId});
             const userDesk: UserDesk = await UserDesk.create({user_id: payload.userId, desk_id: desk.id});
 
-            const role: Role = await RolesService.createDefaultRole({role: DefaultRoles.DESK_OWNER, orgId});
+            const role: Role = await RoleService.createDefaultRole({role: DefaultRoles.DESK_OWNER, orgId});
             await UserDeskRole.create({user_desk_id: userDesk.id, role_id: role.id});
 
             return {

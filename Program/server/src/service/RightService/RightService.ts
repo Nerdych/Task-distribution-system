@@ -234,6 +234,10 @@ class RightService {
                     return await conditionFunction({model: ObjectTypes.ROLES_OBJECT, reqData, role});
                 case ObjectTypes.CARDS_OBJECT:
                     return await conditionFunction({model: ObjectTypes.CARDS_OBJECT, reqData, role});
+                case ObjectTypes.LABELS_OBJECT:
+                    return await conditionFunction({model: ObjectTypes.LABELS_OBJECT, reqData, role});
+                case ObjectTypes.EMPLOYEES_OBJECT:
+                    return await conditionFunction({model: ObjectTypes.EMPLOYEES_OBJECT, reqData, role});
                 default:
                     return true;
             }

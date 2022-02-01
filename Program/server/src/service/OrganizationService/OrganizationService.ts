@@ -26,10 +26,9 @@ import {UserOrganizationRole} from "../../models/UserOrganizationRole";
 import {Desk} from "../../models/Desk";
 
 // Service
-import RolesService from "../RolesService/RolesService";
+import RoleService from "../RoleService/RoleService";
 import DeskService from "../DeskService/DeskService";
 import RightService from "../RightService/RightService";
-import {or} from "sequelize";
 
 class OrganizationService {
     async getUserOrganizations({payload}: MyContext): Promise<Organization[]> {
@@ -75,7 +74,7 @@ class OrganizationService {
             throw new ApolloError('Такой организации не существует', Errors.READ_ERROR);
         }
 
-        const roles: Role[] | null = await RolesService.getOrganizationRoles(ctx, {orgId})
+        const roles: Role[] | null = await RoleService.getOrganizationRoles(ctx, {orgId})
 
         return {
             ...organization,
@@ -91,7 +90,7 @@ class OrganizationService {
                 organization_id: organization.id
             })
 
-            const role: Role = await RolesService.createDefaultRole({
+            const role: Role = await RoleService.createDefaultRole({
                 role: DefaultRoles.ORGANIZATION_OWNER,
                 orgId: organization.id
             });

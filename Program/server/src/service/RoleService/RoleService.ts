@@ -32,7 +32,7 @@ import {RoleRight} from "../../models/RoleRight";
 // Service
 import RightService from "../RightService/RightService";
 
-class RolesService {
+class RoleService {
     async getOrganizationRoles({payload}: MyContext, {orgId}: GetOrganizationRolesInput): Promise<Role[] | null> {
         const getAllRoles = async (): Promise<Role[]> => {
             const organization: Organization | null = await Organization.findOne({
@@ -403,4 +403,4 @@ class RolesService {
     }
 }
 
-export default new RolesService();
+export default new RoleService();

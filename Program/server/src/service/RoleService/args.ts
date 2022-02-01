@@ -16,21 +16,21 @@ export interface CreateDefaultRoleArgs {
 }
 
 @InterfaceType()
-class RolesResponse {
+class RoleResponse {
     @Field(() => String)
     message!: string;
 }
 
-@ObjectType({implements: [RolesResponse]})
-export class CreateRoleResponse extends RolesResponse {
+@ObjectType({implements: [RoleResponse]})
+export class CreateRoleResponse extends RoleResponse {
 };
 
-@ObjectType({implements: [RolesResponse]})
-export class UpdateRoleResponse extends RolesResponse {
+@ObjectType({implements: [RoleResponse]})
+export class UpdateRoleResponse extends RoleResponse {
 };
 
-@ObjectType({implements: [RolesResponse]})
-export class DeleteRoleResponse extends RolesResponse {
+@ObjectType({implements: [RoleResponse]})
+export class DeleteRoleResponse extends RoleResponse {
 };
 
 @InputType()
