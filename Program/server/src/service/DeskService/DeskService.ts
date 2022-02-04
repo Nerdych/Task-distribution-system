@@ -25,6 +25,10 @@ import {Role} from "../../models/Role";
 import {UserDeskRole} from "../../models/UserDeskRole";
 import {Organization} from "../../models/Ogranization";
 import {User} from "../../models/User";
+import {UserOrganization} from "../../models/UserOrganization";
+import {Right} from "../../models/Right";
+import {RoleRight} from "../../models/RoleRight";
+import {BeginCondition} from "../../models/BeginCondition";
 
 // Args
 import {
@@ -40,15 +44,7 @@ import {
     InviteDeskResponse,
     UpdateDeskInput
 } from "./args";
-
-// Service
-import RoleService from "../RoleService/RoleService";
-
-// Models
-import {UserOrganization} from "../../models/UserOrganization";
-import {Right} from "../../models/Right";
-import {RoleRight} from "../../models/RoleRight";
-import {BeginCondition} from "../../models/BeginCondition";
+import {Message} from "../../models/Message";
 
 class DeskService {
     async getDesks({payload}: MyContext, {orgId}: GetDesksInput): Promise<Desk[] | null> {
@@ -149,7 +145,10 @@ class DeskService {
 
     // TODO Затестить
     async getDesk({deskId}: GetDeskInput): Promise<Desk | null> {
-        const desk: Desk | null = await Desk.findOne({where: {id: deskId}});
+        const desk: Desk | null = await Desk.findOne({
+            where: {id: deskId},
+            include: [{model: Message, include: [{model: User}]}]
+        });
 
         if (!desk) {
             throw new ApolloError('Что то пошло не так...', Errors.READ_ERROR);
@@ -158,17 +157,27 @@ class DeskService {
         return desk;
     }
 
-    // TODO Затестить
     async create({payload}: MyContext, {name, orgId}: CreateDeskInput): Promise<CreateDeskResponse> {
         if (payload?.userId) {
             const desk: Desk = await Desk.create({name, organization_id: orgId});
             const userDesk: UserDesk = await UserDesk.create({user_id: payload.userId, desk_id: desk.id});
 
-            const role: Role = await RoleService.createDefaultRole({role: DefaultRoles.DESK_OWNER, orgId});
+            const role: Role | null = await Role.findOne({
+                where: {
+                    rating: 0,
+                    organization_id: orgId,
+                    purpose_id: PurposeTypes.desk
+                }
+            });
+
+            if (!role) {
+                throw new ApolloError('Что то пошло не так...', Errors.READ_ERROR)
+            }
+
             await UserDeskRole.create({user_desk_id: userDesk.id, role_id: role.id});
 
             return {
-                message: 'Карточка успешно создана'
+                message: 'Доска успешно создана'
             }
         }
 

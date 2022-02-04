@@ -8,7 +8,7 @@ import {Desk} from "./Desk";
 
 interface MessageCreationAttrs {
     text: string;
-    date_of_create: Date;
+    date_of_create?: Date;
     desk_id: number;
     user_id: number;
 }
@@ -25,7 +25,7 @@ export class Message extends Model<Message, MessageCreationAttrs> {
     text!: string;
 
     @Field(() => String)
-    @Column({type: DataType.DATE, allowNull: false})
+    @Column({type: DataType.DATE, defaultValue: new Date()})
     date_of_create!: Date;
 
     @Field(() => Int)

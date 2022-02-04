@@ -13,7 +13,7 @@ import {Role} from "./Role";
 interface UserOrganizationCreationAttrs {
     experience?: number;
     hourly_rate?: number;
-    is_vacation?: number;
+    is_vacation?: boolean;
     is_creator?: boolean;
     user_id: number;
     organization_id: number;
@@ -34,11 +34,11 @@ export class UserOrganization extends Model<UserOrganization, UserOrganizationCr
     @Column({type: DataType.INTEGER, allowNull: false, defaultValue: 0})
     hourly_rate!: number;
 
-    @Field(() => Int, {nullable: true})
+    @Field(() => Boolean, {nullable: true})
     @Column({type: DataType.BOOLEAN, allowNull: false, defaultValue: false})
     is_vacation?: boolean;
 
-    @Field(() => Int, {nullable: true})
+    @Field(() => Boolean, {nullable: true})
     @Column({type: DataType.BOOLEAN, allowNull: false, defaultValue: false})
     is_creator?: boolean;
 

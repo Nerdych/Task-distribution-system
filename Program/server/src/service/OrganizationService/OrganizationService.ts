@@ -9,7 +9,8 @@ import {
     CreateOrganizationInput,
     CreateOrganizationResponse,
     DeleteOrganizationInput,
-    DeleteOrganizationResponse, GetOrganizationInfoInput,
+    DeleteOrganizationResponse,
+    GetOrganizationInfoInput,
     GetOrganizationInput,
     GetOrganizationResponse,
     UpdateOrganizationInput,
@@ -94,6 +95,11 @@ class OrganizationService {
                 role: DefaultRoles.ORGANIZATION_OWNER,
                 orgId: organization.id
             });
+            await RoleService.createDefaultRole({
+                role: DefaultRoles.DESK_OWNER,
+                orgId: organization.id
+            })
+
             await UserOrganizationRole.create({user_organization_id: userOrganization.id, role_id: role.id});
 
             return {

@@ -9,6 +9,8 @@ import {DesksRights, MyContext, OrganizationRights} from "../types";
 
 // Service
 import DeskService from "../service/DeskService/DeskService";
+import MessageService from "../service/MessageService/MessageService";
+import ColumnService from "../service/ColumnService/ColumnService";
 
 // Middleware
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
@@ -19,13 +21,33 @@ import {
     AddUserDeskResponse,
     CreateDeskInput,
     CreateDeskResponse,
-    DeleteDeskInput, DeleteDeskResponse,
+    DeleteDeskInput,
+    DeleteDeskResponse,
     GetDeskInput,
-    GetDesksInput, InviteDeskInput, InviteDeskResponse, UpdateDeskInput
+    GetDesksInput,
+    InviteDeskInput,
+    InviteDeskResponse,
+    UpdateDeskInput
 } from "../service/DeskService/args";
 
 // Decorators
 import {RightDecorator} from "../decorators/RightDecorator";
+
+// Args
+import {
+    DeleteMessageInput,
+    DeleteMessageResponse,
+    SendMessageInput,
+    SendMessageResponse,
+    UpdateMessageInput,
+    UpdateMessageResponse
+} from "../service/MessageService/args";
+import {
+    CreateColumnInput,
+    CreateColumnResponse, DeleteColumnInput, DeleteColumnResponse,
+    UpdateColumnInput,
+    UpdateColumnResponse
+} from "../service/ColumnService/args";
 
 @Resolver()
 export class DeskResolver {
@@ -59,7 +81,7 @@ export class DeskResolver {
 
     @Mutation(() => CreateDeskResponse)
     @UseMiddleware(AuthMiddleware)
-    @RightDecorator({organizationRights: [OrganizationRights.READ_DESK], deskRights: [DesksRights.READ_ROLES_ON_DESK]})
+    @RightDecorator({organizationRights: [OrganizationRights.CREATE_DESK]})
     async createDesk(@Ctx() ctx: MyContext, @Arg('options') options: CreateDeskInput): Promise<CreateDeskResponse> {
         return DeskService.create(ctx, options);
     }
@@ -75,5 +97,47 @@ export class DeskResolver {
     @UseMiddleware(AuthMiddleware)
     async addUser(@Ctx() ctx: MyContext, @Arg('options') options: AddUserDeskInput): Promise<AddUserDeskResponse> {
         return DeskService.addUser(ctx, options);
+    }
+
+    @Mutation(() => SendMessageResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.USE_CHAT]})
+    async sendMessage(@Ctx() ctx: MyContext, @Arg('options') options: SendMessageInput): Promise<SendMessageResponse> {
+        return MessageService.send(ctx, options);
+    }
+
+    @Mutation(() => UpdateMessageResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.USE_CHAT]})
+    async updateMessage(@Ctx() ctx: MyContext, @Arg('options') options: UpdateMessageInput): Promise<UpdateMessageResponse> {
+        return MessageService.update(ctx, options);
+    }
+
+    @Mutation(() => DeleteMessageResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.USE_CHAT]})
+    async deleteMessage(@Ctx() ctx: MyContext, @Arg('options') options: DeleteMessageInput): Promise<DeleteMessageResponse> {
+        return MessageService.delete(ctx, options);
+    }
+
+    @Mutation(() => CreateColumnResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.CREATE_COLUMN]})
+    async createColumn(@Arg('options') options: CreateColumnInput): Promise<CreateColumnResponse> {
+        return ColumnService.create(options);
+    }
+
+    @Mutation(() => UpdateColumnResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.UPDATE_COLUMN]})
+    async updateColumn(@Arg('options') options: UpdateColumnInput): Promise<UpdateColumnResponse> {
+        return ColumnService.update(options);
+    }
+
+    @Mutation(() => DeleteColumnResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.DELETE_COLUMN]})
+    async deleteColumn(@Arg('options') options: DeleteColumnInput): Promise<DeleteColumnResponse> {
+        return ColumnService.delete(options);
     }
 }

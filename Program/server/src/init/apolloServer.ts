@@ -7,6 +7,9 @@ import {buildSchema} from "type-graphql";
 import {MyContext} from "../types";
 import {GraphQLError} from "graphql";
 
+// Middleware
+import {LogTimeMiddleware} from "../middleware/LogTimeMiddleware";
+
 // Resolvers
 import {UserResolver} from "../resolvers/user";
 import {OrganizationResolver} from "../resolvers/organization";
@@ -23,7 +26,8 @@ interface startApolloServerArgs {
 const startApolloServer = async (contextArgs: startApolloServerArgs): Promise<ApolloServer> => {
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [UserResolver, OrganizationResolver, DeskResolver, RolesResolver, RightResolver, LabelResolver, EmployeeResolver]
+            resolvers: [UserResolver, OrganizationResolver, DeskResolver, RolesResolver, RightResolver, LabelResolver, EmployeeResolver],
+            globalMiddlewares: [LogTimeMiddleware]
         }),
         context: ({req, res}: MyContext) => ({req, res, ...contextArgs}),
         formatError: (error: GraphQLError) => {

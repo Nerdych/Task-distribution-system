@@ -1,6 +1,6 @@
 // Core
 import {Field, InputType, Int, InterfaceType, ObjectType} from "type-graphql";
-import {IsEmail, IsNotEmpty, Length} from "class-validator";
+import {IsNotEmpty, Length} from "class-validator";
 
 // Validators
 import {OrganizationFound} from "../../validators/organizationFound";
@@ -28,7 +28,6 @@ export class InviteDeskResponse extends DeskResponse {
 export class AddUserDeskResponse extends DeskResponse {
 };
 
-// TODO ЭКСПЕРИМЕНТИРУЕМ
 @InputType({description: "Create desk data"})
 export class CreateDeskInput {
     @Field(() => String)
@@ -42,18 +41,6 @@ export class CreateDeskInput {
         message: 'Организация с таким индентификатором не найдена'
     })
     orgId!: number;
-
-    @Field(() => Int)
-    @OrganizationFound({
-        message: 'Организация с таким индентификатором не найдена'
-    })
-    roleId!: number;
-
-    @Field(() => Int)
-    @OrganizationFound({
-        message: 'Организация с таким индентификатором не найдена'
-    })
-    deskId!: number;
 }
 
 @InputType({description: "Get desk data"})

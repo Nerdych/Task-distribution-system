@@ -216,7 +216,7 @@ class RoleService {
             case DefaultRoles.ORGANIZATION_OWNER: {
                 const role: Role = await Role.create({
                     name: DefaultRoles.ORGANIZATION_OWNER,
-                    rating: 1,
+                    rating: 0,
                     purpose_id: PurposeTypes.organization,
                     organization_id: orgId
                 });
@@ -249,7 +249,7 @@ class RoleService {
             case DefaultRoles.DESK_OWNER: {
                 const role: Role = await Role.create({
                     name: DefaultRoles.DESK_OWNER,
-                    rating: 1,
+                    rating: 0,
                     purpose_id: PurposeTypes.desk,
                     organization_id: orgId
                 });

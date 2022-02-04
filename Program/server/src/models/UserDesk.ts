@@ -1,11 +1,11 @@
 // Core
 import {Column, Table, Model, ForeignKey, DataType, HasMany, BelongsToMany} from 'sequelize-typescript';
+import {Field, ObjectType} from "type-graphql";
 
 // Models
 import {User} from "./User";
 import {Desk} from "./Desk";
 import {UserDeskRole} from "./UserDeskRole";
-import {Field, ObjectType} from "type-graphql";
 import {Role} from "./Role";
 
 interface UserDeskCreationAttrs {
