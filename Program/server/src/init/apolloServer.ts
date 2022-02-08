@@ -2,10 +2,10 @@
 import NodeCache from "node-cache";
 import {ApolloServer} from "apollo-server-express";
 import {buildSchema} from "type-graphql";
+import {GraphQLError} from "graphql";
 
 // Types
 import {MyContext} from "../types";
-import {GraphQLError} from "graphql";
 
 // Middleware
 import {LogTimeMiddleware} from "../middleware/LogTimeMiddleware";
@@ -18,6 +18,7 @@ import {RolesResolver} from "../resolvers/role";
 import {RightResolver} from "../resolvers/right";
 import {LabelResolver} from "../resolvers/label";
 import {EmployeeResolver} from "../resolvers/employee";
+import {CardResolver} from "../resolvers/card";
 
 interface startApolloServerArgs {
     cache: NodeCache
@@ -26,7 +27,7 @@ interface startApolloServerArgs {
 const startApolloServer = async (contextArgs: startApolloServerArgs): Promise<ApolloServer> => {
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [UserResolver, OrganizationResolver, DeskResolver, RolesResolver, RightResolver, LabelResolver, EmployeeResolver],
+            resolvers: [UserResolver, OrganizationResolver, DeskResolver, RolesResolver, RightResolver, LabelResolver, EmployeeResolver, CardResolver],
             globalMiddlewares: [LogTimeMiddleware]
         }),
         context: ({req, res}: MyContext) => ({req, res, ...contextArgs}),

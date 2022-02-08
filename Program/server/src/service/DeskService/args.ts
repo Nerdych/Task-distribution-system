@@ -5,6 +5,7 @@ import {IsNotEmpty, Length} from "class-validator";
 // Validators
 import {OrganizationFound} from "../../validators/organizationFound";
 import {DeskFound} from "../../validators/deskFound";
+import {EmployeeFound} from "../../validators/employeeFound";
 
 @InterfaceType()
 class DeskResponse {
@@ -26,6 +27,10 @@ export class InviteDeskResponse extends DeskResponse {
 
 @ObjectType({implements: [DeskResponse]})
 export class AddUserDeskResponse extends DeskResponse {
+};
+
+@ObjectType({implements: [DeskResponse]})
+export class ChangeEmployeeRolesResponse extends DeskResponse {
 };
 
 @InputType({description: "Create desk data"})
@@ -128,4 +133,43 @@ export class InviteDeskInput {
 export class AddUserDeskInput {
     @Field(() => String)
     token!: number;
+}
+
+@InputType({description: "Get desk employees data"})
+export class GetDeskEmployeesInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
+
+    @Field(() => Int)
+    @DeskFound({
+        message: 'Доска с таким индентификатором не найдена'
+    })
+    deskId!: number;
+}
+
+@InputType({description: "Change employee roles data"})
+export class ChangeEmployeeRolesInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индентификатором не найдена'
+    })
+    orgId!: number;
+
+    @Field(() => Int)
+    @DeskFound({
+        message: 'Доска с таким индентификатором не найдена'
+    })
+    deskId!: number;
+
+    @Field(() => [Int])
+    roles!: number[];
+
+    @Field(() => Int)
+    @EmployeeFound({
+        message: 'Сотрудник с таким индентификатором не найден'
+    })
+    employeeId!: number;
 }

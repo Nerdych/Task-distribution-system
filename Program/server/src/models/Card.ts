@@ -12,7 +12,7 @@ import {Label} from "./Label";
 interface CardCreationAttrs {
     name: string;
     column_id: number;
-    user_id: number;
+    user_id?: number;
     description?: string;
     deadline?: Date;
 }
@@ -27,6 +27,10 @@ export class Card extends Model<Card, CardCreationAttrs> {
     @Field(() => String)
     @Column({type: DataType.TEXT, allowNull: false})
     name!: string;
+
+    @Field(() => Boolean)
+    @Column({type: DataType.BOOLEAN, defaultValue: false})
+    is_archived?: boolean;
 
     @Field(() => String, {nullable: true})
     @Column({type: DataType.TEXT})

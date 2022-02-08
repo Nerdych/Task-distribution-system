@@ -5,7 +5,7 @@ import {v4} from "uuid";
 // Types
 import {
     BeginCondition as BeginConditionTypes,
-    DefaultRoles,
+    DefaultRoles, DesksRights,
     Errors,
     MyContext,
     OrganizationRights,
@@ -33,11 +33,11 @@ import {BeginCondition} from "../../models/BeginCondition";
 // Args
 import {
     AddUserDeskInput,
-    AddUserDeskResponse,
+    AddUserDeskResponse, ChangeEmployeeRolesInput, ChangeEmployeeRolesResponse,
     CreateDeskInput,
     CreateDeskResponse,
     DeleteDeskInput,
-    DeleteDeskResponse,
+    DeleteDeskResponse, GetDeskEmployeesInput,
     GetDeskInput,
     GetDesksInput,
     InviteDeskInput,
@@ -143,7 +143,6 @@ class DeskService {
         return null;
     }
 
-    // TODO Затестить
     async getDesk({deskId}: GetDeskInput): Promise<Desk | null> {
         const desk: Desk | null = await Desk.findOne({
             where: {id: deskId},
@@ -207,6 +206,230 @@ class DeskService {
         } catch (e) {
             throw new ApolloError('Что то пошло не так...', 'SOMETHING_ERROR');
         }
+    }
+
+    async getDeskEmployees({payload}: MyContext, {deskId}: GetDeskEmployeesInput): Promise<UserDesk[]> {
+        const getLowerRoles = async (): Promise<UserDesk[]> => {
+            const findMaxRating = (data: UserDesk): number => {
+                return data.roles.reduce((acc: number, role: Role) => {
+                    if (acc > role.rating) {
+                        return role.rating;
+                    } else {
+                        return acc;
+                    }
+                }, -1)
+            }
+
+            let userDesks: UserDesk[] | null = await UserDesk.findAll({
+                where: {desk_id: deskId},
+                include: [
+                    {model: UserDeskRole, include: [{model: Role}]},
+                    {model: User, include: [{model: UserOrganization}]}
+                ]
+            });
+
+            if (!userDesk) return [];
+
+            userDesks.filter((a: UserDesk) => findMaxRating(a) > findMaxRating(userDesk));
+
+            return userDesks;
+        }
+
+        const getAllRoles = async (): Promise<UserDesk[]> => {
+            const userDesks: UserDesk[] | null = await UserDesk.findAll({
+                where: {desk_id: deskId},
+                include: [
+                    {model: UserDeskRole, include: [{model: Role}]},
+                    {model: User, include: [{model: UserOrganization}]}
+                ]
+            });
+            return userDesks;
+        }
+
+        const userDesk: UserDesk | null = await UserDesk.findOne({
+            where: {
+                user_id: payload?.userId,
+                desk_id: deskId
+            },
+            include: [{model: Role, include: [{model: RoleRight, include: [{model: BeginCondition}]}]}, {model: User}]
+        })
+        const needRight: Right | null = await Right.findOne({where: {code: DesksRights.READ_DESK_EMPLOYEES}});
+
+        if (!needRight) {
+            throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+        }
+
+        if (!userDesk) {
+            throw new ApolloError('Нет прав для доступа к данной доске', Errors.PERMISSIONS_ERROR);
+        }
+
+        const conditions: BeginConditionTypes[] | null = userDesk.roles.reduce((acc: BeginConditionTypes[], role) => {
+            const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
+            if (findRight) {
+                return [...acc, findRight.begin_condition.code]
+            } else {
+                return acc
+            }
+        }, []);
+
+        if (conditions) {
+            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
+
+            if (isGetAll) {
+                return getAllRoles();
+            }
+
+            const isGetLowerRoles: boolean = conditions.includes(BeginConditionTypes.ONLY_LOWER_STATUS);
+
+            if (isGetLowerRoles) {
+                return getLowerRoles();
+            }
+
+            return [];
+        }
+
+        return [];
+    }
+
+    async changeRoles({payload}: MyContext, {
+        employeeId,
+        roles,
+        deskId,
+    }: ChangeEmployeeRolesInput): Promise<ChangeEmployeeRolesResponse> {
+        const updateRoles = async () => {
+            const employee: UserOrganization | null = await UserOrganization.findOne({where: {id: employeeId}});
+
+            if (!employee) {
+                throw new ApolloError('Такого сотрудника не существует', Errors.READ_ERROR);
+            }
+
+            const userDesk: UserDesk | null = await UserDesk.findOne({
+                where: {user_id: employeeId, desk_id: deskId},
+                include: [{model: Role}]
+            });
+
+            if (!userDesk) {
+                throw new ApolloError('Такого сотрудника не существует', Errors.READ_ERROR);
+            }
+
+            let haveRoles: Role[] = [...userDesk.roles];
+
+            for (let i = 0; i < roles.length; i++) {
+                const findRole: number = haveRoles.findIndex(role => role.id === roles[i]);
+
+                if (findRole === -1) {
+                    try {
+                        await UserDeskRole.create({user_desk_id: userDesk.id, role_id: roles[i]})
+                    } catch {
+                        throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+                    }
+                } else {
+                    haveRoles = [...haveRoles.slice(0, findRole), ...haveRoles.slice(findRole + 1, haveRoles.length)]
+                }
+            }
+
+            if (haveRoles.length) {
+                for (let i = 0; i < haveRoles.length; i++) {
+                    const userDeskRole: UserDeskRole | null = await UserDeskRole.findOne({
+                        where: {
+                            user_desk_id: userDesk.id,
+                            role: haveRoles[i].id
+                        }
+                    });
+
+                    if (!userDeskRole) {
+                        throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+                    }
+
+                    try {
+                        await userDeskRole.destroy();
+                    } catch {
+                        throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+                    }
+                }
+            }
+        }
+
+        const findMaxRating = (userDesk: UserDesk): number => {
+            return userDesk.roles.reduce((acc: number, role: Role) => {
+                if (acc > role.rating) {
+                    return role.rating;
+                } else {
+                    return acc;
+                }
+            }, -1);
+        }
+
+        const userDesk: UserDesk | null = await UserDesk.findOne({
+            where: {
+                user_id: payload?.userId,
+                desk_id: deskId
+            },
+            include: [{model: Role, include: [{model: RoleRight, include: [{model: BeginCondition}]}]}, {model: User}]
+        })
+        const needRight: Right | null = await Right.findOne({where: {code: DesksRights.READ_DESK_EMPLOYEES}});
+
+        if (!needRight) {
+            throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+        }
+
+        if (!userDesk) {
+            throw new ApolloError('Нет прав для доступа к данной доске', Errors.PERMISSIONS_ERROR);
+        }
+
+        const conditions: BeginConditionTypes[] | null = userDesk.roles.reduce((acc: BeginConditionTypes[], role) => {
+            const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
+            if (findRight) {
+                return [...acc, findRight.begin_condition.code]
+            } else {
+                return acc
+            }
+        }, []);
+
+        if (conditions) {
+            const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
+
+            if (isGetAll) {
+                await updateRoles();
+                return {
+                    message: 'Роли обновлены'
+                }
+            }
+
+            const isGetLowerRoles: boolean = conditions.includes(BeginConditionTypes.ONLY_LOWER_STATUS);
+
+            if (isGetLowerRoles) {
+                const employee: UserOrganization | null = await UserOrganization.findOne({where: {id: employeeId}});
+
+                if (!employee) {
+                    throw new ApolloError('Такого сотрудника не существует', Errors.READ_ERROR);
+                }
+
+                const employeeDesk: UserDesk | null = await UserDesk.findOne({
+                    where: {user_id: employeeId, desk_id: deskId},
+                    include: [{model: Role}]
+                });
+
+                if (!employeeDesk) {
+                    throw new ApolloError('Такого сотрудника не существует', Errors.READ_ERROR);
+                }
+
+                if (findMaxRating(userDesk) < findMaxRating(employeeDesk)) {
+                    await updateRoles();
+                    return {
+                        message: 'Роли обновлены'
+                    };
+                }
+            }
+
+            return {
+                message: 'Роли обновлены'
+            };
+        }
+
+        return {
+            message: 'Роли обновлены'
+        };
     }
 
     // TODO Затестить

@@ -58,6 +58,10 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.INTEGER, allowNull: false, defaultValue: 0})
     token_version!: number;
 
+    @Field(() => [UserOrganization])
+    @HasMany(() => UserOrganization)
+    userOrganizations: UserOrganization[];
+
     @Field(() => [Message], {nullable: true})
     @HasMany(() => Message)
     messages: Message[];

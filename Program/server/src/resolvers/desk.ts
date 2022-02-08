@@ -18,11 +18,12 @@ import {AuthMiddleware} from "../middleware/AuthMiddleware";
 // Args
 import {
     AddUserDeskInput,
-    AddUserDeskResponse,
+    AddUserDeskResponse, ChangeEmployeeRolesInput, ChangeEmployeeRolesResponse,
     CreateDeskInput,
     CreateDeskResponse,
     DeleteDeskInput,
     DeleteDeskResponse,
+    GetDeskEmployeesInput,
     GetDeskInput,
     GetDesksInput,
     InviteDeskInput,
@@ -44,10 +45,13 @@ import {
 } from "../service/MessageService/args";
 import {
     CreateColumnInput,
-    CreateColumnResponse, DeleteColumnInput, DeleteColumnResponse,
+    CreateColumnResponse,
+    DeleteColumnInput,
+    DeleteColumnResponse,
     UpdateColumnInput,
     UpdateColumnResponse
 } from "../service/ColumnService/args";
+import {UserDesk} from "../models/UserDesk";
 
 @Resolver()
 export class DeskResolver {
@@ -63,6 +67,13 @@ export class DeskResolver {
     @RightDecorator({organizationRights: [OrganizationRights.READ_DESK]})
     async desk(@Arg('options') options: GetDeskInput): Promise<Desk | null> {
         return DeskService.getDesk(options);
+    }
+
+    @Query(() => [UserDesk], {nullable: true})
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.READ_DESK_EMPLOYEES]})
+    async deskEmployees(@Ctx() ctx: MyContext, @Arg('options') options: GetDeskEmployeesInput): Promise<UserDesk[]> {
+        return DeskService.getDeskEmployees(ctx, options);
     }
 
     @Mutation(() => DeleteDeskResponse)
@@ -97,6 +108,13 @@ export class DeskResolver {
     @UseMiddleware(AuthMiddleware)
     async addUser(@Ctx() ctx: MyContext, @Arg('options') options: AddUserDeskInput): Promise<AddUserDeskResponse> {
         return DeskService.addUser(ctx, options);
+    }
+
+    @Mutation(() => ChangeEmployeeRolesResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.CHANGE_DESK_ROLES]})
+    async changeDeskEmployeeRolesUser(@Ctx() ctx: MyContext, @Arg('options') options: ChangeEmployeeRolesInput): Promise<ChangeEmployeeRolesResponse> {
+        return DeskService.changeRoles(ctx, options);
     }
 
     @Mutation(() => SendMessageResponse)

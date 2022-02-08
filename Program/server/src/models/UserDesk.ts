@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, ForeignKey, DataType, HasMany, BelongsToMany} from 'sequelize-typescript';
+import {Column, Table, Model, ForeignKey, DataType, HasMany, BelongsToMany, BelongsTo} from 'sequelize-typescript';
 import {Field, ObjectType} from "type-graphql";
 
 // Models
@@ -31,6 +31,10 @@ export class UserDesk extends Model<UserDesk, UserDeskCreationAttrs> {
     @ForeignKey(() => Desk)
     @Column({type: DataType.INTEGER, allowNull: false, unique: 'user_id_desk_id_unique'})
     desk_id: number
+
+    @Field(() => User)
+    @BelongsTo(() => User)
+    user: User;
 
     @Field(() => [UserDeskRole])
     @HasMany(() => UserDeskRole)

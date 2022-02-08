@@ -261,7 +261,7 @@ class RoleService {
                     await RightService.addRoleRights({
                         roleId: role.id, rights: rights.map(right => {
                             switch (right.code) {
-                                case DesksRights.READ_ROLES_ON_DESK:
+                                case DesksRights.READ_DESK_EMPLOYEES:
                                     return {
                                         rightId: right.id,
                                         begin_condition: beginConditions.find(condition => condition.code === BeginConditionTypes.ALL)!.id

@@ -8,7 +8,7 @@ import {User} from "./User";
 
 interface CommentCreationAttrs {
     text: string;
-    date_of_create: Date;
+    date_of_create?: Date;
     card_id: number;
     user_id: number;
 }
@@ -25,7 +25,7 @@ export class Comment extends Model<Comment, CommentCreationAttrs> {
     text!: string;
 
     @Field(() => String)
-    @Column({type: DataType.DATE, allowNull: false})
+    @Column({type: DataType.DATE, allowNull: false, defaultValue: new Date()})
     date_of_create!: Date;
 
     @Field(() => Int)
