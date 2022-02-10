@@ -45,7 +45,15 @@ export enum DesksRights {
     UPDATE_COLUMN = 'UPDATE_COLUMN',
     DELETE_COLUMN = 'DELETE_COLUMN',
     READ_DESK_EMPLOYEES = 'READ_DESK_EMPLOYEES',
-    CHANGE_DESK_ROLES = 'CHANGE_DESK_ROLES'
+    CHANGE_DESK_ROLES = 'CHANGE_DESK_ROLES',
+    READ_CARDS = 'READ_CARDS',
+    UPDATE_CARD = 'UPDATE_CARD',
+    CREATE_CARD = 'CREATE_CARD',
+    DELETE_CARD = 'DELETE_CARD',
+    USE_COMMENT = 'USE_COMMENT',
+    CREATE_LIST = 'CREATE_LIST',
+    UPDATE_LIST = 'UPDATE_LIST',
+    DELETE_LIST = 'DELETE_LIST'
 }
 
 export enum BeginCondition {
@@ -69,7 +77,8 @@ export enum ObjectTypes {
     ROLES_OBJECT = 'ROLES_OBJECT',
     ORGANIZATION_OBJECT = 'ORGANIZATION_OBJECT',
     EMPLOYEES_OBJECT = 'EMPLOYEES_OBJECT',
-    COLUMN_OBJECT = 'COLUMN_OBJECT'
+    COLUMN_OBJECT = 'COLUMN_OBJECT',
+    COMMENT_OBJECT = 'COMMENT_OBJECT'
 }
 
 export enum Errors {
@@ -84,6 +93,10 @@ export enum DefaultRoles {
     EMPLOYEE = 'Сотрудник',
     ORGANIZATION_OWNER = 'Владелец организации',
     DESK_OWNER = 'Создатель доски'
+}
+
+export enum SubscribeTypes {
+    SEND_MESSAGE = 'SEND_MESSAGE'
 }
 
 

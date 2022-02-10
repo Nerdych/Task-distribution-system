@@ -1,11 +1,22 @@
 // Core
-import {Arg, Ctx, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
+import {
+    Arg,
+    Ctx,
+    Mutation,
+    PubSub,
+    PubSubEngine,
+    Query,
+    Resolver,
+    Root,
+    Subscription,
+    UseMiddleware
+} from "type-graphql";
 
 // Models
 import {Desk} from "../models/Desk";
 
 // Types
-import {DesksRights, MyContext, OrganizationRights} from "../types";
+import {DesksRights, MyContext, OrganizationRights, SubscribeTypes} from "../types";
 
 // Service
 import DeskService from "../service/DeskService/DeskService";
@@ -52,6 +63,7 @@ import {
     UpdateColumnResponse
 } from "../service/ColumnService/args";
 import {UserDesk} from "../models/UserDesk";
+import {Message} from "../models/Message";
 
 @Resolver()
 export class DeskResolver {
@@ -117,11 +129,13 @@ export class DeskResolver {
         return DeskService.changeRoles(ctx, options);
     }
 
-    @Mutation(() => SendMessageResponse)
+    @Mutation(() => Message)
     @UseMiddleware(AuthMiddleware)
     @RightDecorator({deskRights: [DesksRights.USE_CHAT]})
-    async sendMessage(@Ctx() ctx: MyContext, @Arg('options') options: SendMessageInput): Promise<SendMessageResponse> {
-        return MessageService.send(ctx, options);
+    async sendMessage(@PubSub() pubSub: PubSubEngine, @Ctx() ctx: MyContext, @Arg('options') options: SendMessageInput): Promise<Message> {
+        const res: Message = await MessageService.send(ctx, options);
+        await pubSub.publish(SubscribeTypes.SEND_MESSAGE, res);
+        return res;
     }
 
     @Mutation(() => UpdateMessageResponse)
@@ -157,5 +171,14 @@ export class DeskResolver {
     @RightDecorator({deskRights: [DesksRights.DELETE_COLUMN]})
     async deleteColumn(@Arg('options') options: DeleteColumnInput): Promise<DeleteColumnResponse> {
         return ColumnService.delete(options);
+    }
+
+    @Subscription(() => Message, {
+        topics: SubscribeTypes.SEND_MESSAGE, filter: ({payload, args}) => {
+            return payload.desk_id === args.deskId;
+        }
+    })
+    newMessage(@Root() message: Message, @Arg("deskId") deskId: number): Message {
+        return message;
     }
 }

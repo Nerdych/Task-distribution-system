@@ -33,17 +33,17 @@ export class CreateColumnInput {
     })
     orgId!: number;
 
-    @Field(() => String)
-    @Length(1, 255, {
-        message: 'Название колонки должно иметь минимум один знак и максимум 255 символов'
-    })
-    name!: string;
-
     @Field(() => Int)
     @DeskFound({
         message: 'Доска с таким индентификатором не найдена'
     })
     deskId!: number;
+
+    @Field(() => String)
+    @Length(1, 255, {
+        message: 'Название колонки должно иметь минимум один знак и максимум 255 символов'
+    })
+    name!: string;
 }
 
 @InputType({description: "Update column data"})

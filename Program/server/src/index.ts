@@ -3,8 +3,11 @@ import express, {Application} from 'express';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
 import NodeCache from 'node-cache';
-import {ApolloServer} from "apollo-server-express";
 import dotenv from 'dotenv';
+import {ApolloServer} from "apollo-server-express";
+import {Server} from "http";
+import {SubscriptionServer} from "subscriptions-transport-ws";
+import {GraphQLSchema} from "graphql";
 
 dotenv.config();
 
@@ -18,7 +21,10 @@ import {db} from './init/database';
 // Server
 import startExpressServer from './init/expressServer';
 import startApolloServer from "./init/apolloServer";
+import {startSubscribtionsServer} from "./init/subscriptionsServer";
+import {startHttpServer} from "./init/httpServer";
 import {addEndpoints} from "./init/addEndpoints";
+import {createSchema} from "./init/createSchema";
 
 const start = async () => {
     try {
@@ -31,12 +37,17 @@ const start = async () => {
                 console.error('Unable to connect to the database:', err);
             });
 
-        const nodeCache = new NodeCache();
-        const app: Application = startExpressServer();
-        const apolloServer: ApolloServer = await startApolloServer({cache: nodeCache});
+        const schema: GraphQLSchema = await createSchema();
+        const nodeCache: NodeCache = new NodeCache();
 
-        // todo ХЫЗЫ СРАБОТАЕТ ЛИ ЕСЛИ ВНИЗ ПЕРЕТАЩУ
-        app.use(cookieParser());
+        const app: Application = startExpressServer();
+        const httpServer: Server = startHttpServer({app});
+        const subscriptionServer: SubscriptionServer = startSubscribtionsServer({schema, httpServer});
+        const apolloServer: ApolloServer = await startApolloServer({
+            contextArgs: {cache: nodeCache},
+            subscriptionServer,
+            schema
+        });
 
         apolloServer.applyMiddleware({
             app,
@@ -46,12 +57,13 @@ const start = async () => {
             }
         });
 
+        app.use(cookieParser());
         app.use(cors(corsConfig));
         app.use(express.json());
 
         addEndpoints(app);
 
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`Server started on port ${PORT}`);
         });
     } catch (err) {

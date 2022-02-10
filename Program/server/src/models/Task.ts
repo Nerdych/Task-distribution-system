@@ -7,7 +7,8 @@ import {List} from './List';
 
 interface TaskCreationAttrs {
     title: string;
-    is_checked: boolean;
+    list_id: number;
+    is_checked?: boolean;
 }
 
 @ObjectType()

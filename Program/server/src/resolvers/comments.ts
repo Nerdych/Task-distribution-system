@@ -1,8 +1,5 @@
 // Core
-import {Arg, Ctx, Mutation, Query, Resolver, UseMiddleware} from "type-graphql";
-
-// Service
-import CommentService from "../service/CommentService/CommentService";
+import {Arg, Ctx, Mutation, Resolver, UseMiddleware} from "type-graphql";
 
 // Middleware
 import {AuthMiddleware} from "../middleware/AuthMiddleware";
@@ -11,10 +8,10 @@ import {AuthMiddleware} from "../middleware/AuthMiddleware";
 import {RightDecorator} from "../decorators/RightDecorator";
 
 // Types
-import {MyContext, OrganizationRights} from "../types";
+import {DesksRights, MyContext} from "../types";
 
-// Models
-import {Comment} from "../models/Comment";
+// Service
+import CommentService from "../service/CommentService/CommentService";
 
 // Args
 import {
@@ -24,23 +21,29 @@ import {
     UpdateCommentInput
 } from "../service/CommentService/args";
 
+// Models
+import {Comment} from "../models/Comment";
+
 @Resolver()
 export class CommentResolver {
     @Mutation(() => Comment)
     @UseMiddleware(AuthMiddleware)
+    @RightDecorator({deskRights: [DesksRights.USE_COMMENT]})
     async createComment(@Ctx() ctx: MyContext, @Arg('options') options: CreateCommentInput): Promise<Comment> {
         return CommentService.create(ctx, options);
     }
 
     @Mutation(() => Comment)
     @UseMiddleware(AuthMiddleware)
-    async updateComment(@Arg('options') options: UpdateCommentInput): Promise<Comment> {
+    @RightDecorator({deskRights: [DesksRights.USE_COMMENT]})
+    async updateComment(@Ctx() ctx: MyContext, @Arg('options') options: UpdateCommentInput): Promise<Comment> {
         return CommentService.update(options);
     }
 
     @Mutation(() => DeleteCommentResponse)
     @UseMiddleware(AuthMiddleware)
-    async deleteComment(@Arg('options') options: DeleteCommentInput): Promise<DeleteCommentResponse> {
+    @RightDecorator({deskRights: [DesksRights.USE_COMMENT]})
+    async deleteComment(@Ctx() ctx: MyContext, @Arg('options') options: DeleteCommentInput): Promise<DeleteCommentResponse> {
         return CommentService.delete(options);
     }
 }

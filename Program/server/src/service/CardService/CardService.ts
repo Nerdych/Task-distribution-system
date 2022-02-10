@@ -8,13 +8,71 @@ import {CreateCardInput, DeleteCardInput, DeleteCardResponse, GetAllCardsInput, 
 import {Card} from "../../models/Card";
 
 // Types
-import {Errors} from "../../types";
+import {BeginCondition as BeginConditionTypes, DesksRights, Errors, MyContext, OrganizationRights} from "../../types";
+import {UserOrganization} from "../../models/UserOrganization";
+import {Role} from "../../models/Role";
+import {RoleRight} from "../../models/RoleRight";
+import {BeginCondition} from "../../models/BeginCondition";
+import {Right} from "../../models/Right";
 
 class CardService {
-    async getAll({columnId}: GetAllCardsInput): Promise<Card[]> {
-        const cards: Card[] | null = await Card.findAll({where: {column_id: columnId}});
-        return cards;
-    }
+    // async getAll({payload}: MyContext, {columnId, orgId}: GetAllCardsInput): Promise<Card[]> {
+    //     const getAllCards = async (): Promise<Card[]> => {
+    //         return await Card.findAll();
+    //     }
+    //
+    //     const getConnectCards = async (): Promise<Card[]> => {
+    //         let cards: Card[] = Card.findAll({where: });
+    //     }
+    //
+    //     if (!payload?.userId) {
+    //         throw new ApolloError('Нет прав доступа', Errors.PERMISSIONS_ERROR);
+    //     }
+    //
+    //     const userOrganization: UserOrganization | null = await UserOrganization.findOne({
+    //         where: {
+    //             user_id: payload.userId,
+    //             organization_id: orgId
+    //         }, include: {model: Role, include: [{model: RoleRight, include: [{model: BeginCondition}]}]}
+    //     })
+    //
+    //     if (!userOrganization) {
+    //         throw new ApolloError('Нет прав для доступа к данной организации', Errors.PERMISSIONS_ERROR);
+    //     }
+    //
+    //     const needRight: Right | null = await Right.findOne({where: {code: DesksRights.}});
+    //
+    //     if (!needRight) {
+    //         throw new ApolloError('Такого права не существует', Errors.READ_ERROR);
+    //     }
+    //
+    //     const conditions: BeginConditionTypes[] | null = userOrganization.roles.reduce((acc: BeginConditionTypes[], role) => {
+    //         const findRight: RoleRight | undefined = role.role_rights.find(roleRight => roleRight.right_id === needRight.id);
+    //         if (findRight) {
+    //             return [...acc, findRight.begin_condition.code]
+    //         } else {
+    //             return acc
+    //         }
+    //     }, []);
+    //
+    //     if (conditions) {
+    //         const isGetAll: boolean = conditions.includes(BeginConditionTypes.ALL);
+    //
+    //         if (isGetAll) {
+    //             return getAllCards();
+    //         }
+    //
+    //         const isOnlyConnect: boolean = conditions.includes(BeginConditionTypes.ONLY_THEIR) || conditions.includes(BeginConditionTypes.ONLY_PIN);
+    //
+    //         if (isOnlyConnect) {
+    //             return getConnectCards();
+    //         }
+    //
+    //         return [];
+    //     }
+    //
+    //     return [];
+    // }
 
     async create({columnId, name}: CreateCardInput): Promise<Card> {
         try {

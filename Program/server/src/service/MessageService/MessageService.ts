@@ -17,15 +17,16 @@ import {Errors, MyContext} from "../../types";
 import {Message} from "../../models/Message";
 
 class MessageService {
-    async send({payload}: MyContext, {text, deskId}: SendMessageInput): Promise<SendMessageResponse> {
+    async send({payload}: MyContext, {text, deskId}: SendMessageInput): Promise<Message> {
         if (!payload?.userId) {
             throw new ApolloError('Ошибка прав доступа', Errors.PERMISSIONS_ERROR);
         }
 
-        const message: Message = await Message.create({text, desk_id: deskId, user_id: payload.userId});
-
-        return {
-            message: 'Сообщение отправлено'
+        try {
+            const message: Message = await Message.create({text, desk_id: deskId, user_id: payload.userId});
+            return message;
+        } catch {
+            throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
         }
     }
 
