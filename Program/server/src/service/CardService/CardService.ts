@@ -2,7 +2,14 @@
 import {ApolloError} from "apollo-server-express";
 
 // Args
-import {CreateCardInput, DeleteCardInput, DeleteCardResponse, GetAllCardsInput, UpdateCardInput} from "./agrs";
+import {
+    CreateCardInput,
+    DeleteCardInput,
+    DeleteCardResponse,
+    GetAllCardsInput,
+    UpdateCardInput,
+    UploadImageInput, UploadImageResponse
+} from "./agrs";
 
 // Models
 import {Card} from "../../models/Card";
@@ -14,6 +21,8 @@ import {Role} from "../../models/Role";
 import {RoleRight} from "../../models/RoleRight";
 import {BeginCondition} from "../../models/BeginCondition";
 import {Right} from "../../models/Right";
+import {Desk} from "../../models/Desk";
+import FileService from "../FileService/FileService";
 
 class CardService {
     // async getAll({payload}: MyContext, {columnId, orgId}: GetAllCardsInput): Promise<Card[]> {
@@ -120,6 +129,28 @@ class CardService {
             }
         } catch {
             throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        }
+    }
+
+    async uploadImage({cardId, image}: UploadImageInput): Promise<UploadImageResponse> {
+        const card: Card | null = await Card.findOne({where: {id: cardId}});
+
+        if (!card) {
+            throw new ApolloError('Такой карточки не существует', Errors.READ_ERROR);
+        }
+
+        const {fileUrl, description} = await FileService.create({file: image});
+
+        try {
+
+        } catch {
+            throw new ApolloError('Что то пошло не так...', Errors.SOMETHING_ERROR);
+        }
+
+        return {
+            message: "Изображение успешно загружено",
+            imageUrl: fileUrl,
+            description
         }
     }
 }

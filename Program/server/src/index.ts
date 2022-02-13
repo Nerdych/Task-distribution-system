@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from 'cors';
 import NodeCache from 'node-cache';
 import dotenv from 'dotenv';
+import path from "path";
 import {ApolloServer} from "apollo-server-express";
 import {Server} from "http";
 import {SubscriptionServer} from "subscriptions-transport-ws";
@@ -25,6 +26,8 @@ import {startSubscribtionsServer} from "./init/subscriptionsServer";
 import {startHttpServer} from "./init/httpServer";
 import {addEndpoints} from "./init/addEndpoints";
 import {createSchema} from "./init/createSchema";
+import {graphqlUploadExpress} from "graphql-upload";
+
 
 const start = async () => {
     try {
@@ -49,6 +52,12 @@ const start = async () => {
             schema
         });
 
+        app.use(graphqlUploadExpress());
+        app.use(cookieParser());
+        app.use(cors(corsConfig));
+        app.use(express.json());
+        app.use(express.static(path.join(__dirname, 'static')));
+
         apolloServer.applyMiddleware({
             app,
             cors: {
@@ -56,10 +65,6 @@ const start = async () => {
                 credentials: true,
             }
         });
-
-        app.use(cookieParser());
-        app.use(cors(corsConfig));
-        app.use(express.json());
 
         addEndpoints(app);
 

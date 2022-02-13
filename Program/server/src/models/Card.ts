@@ -8,6 +8,7 @@ import {List} from './List';
 import {User} from './User';
 import {LabelCard} from "./LabelCard";
 import {Label} from "./Label";
+import {File} from "./File";
 
 interface CardCreationAttrs {
     name: string;
@@ -53,6 +54,10 @@ export class Card extends Model<Card, CardCreationAttrs> {
     @ForeignKey(() => User)
     @Column({type: DataType.INTEGER, allowNull: false})
     user_id!: number;
+
+    @ForeignKey(() => File)
+    @Column({type: DataType.INTEGER, unique: true})
+    file_id?: number
 
     @Field(() => ColumnTable)
     @BelongsTo(() => ColumnTable)

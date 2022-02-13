@@ -1,6 +1,7 @@
 // Core
 import {Field, InputType, Int, InterfaceType, ObjectType} from "type-graphql";
 import {Length} from "class-validator";
+import {FileUpload, GraphQLUpload} from "graphql-upload";
 
 // Validators
 import {OrganizationFound} from "../../validators/organizationFound";
@@ -16,7 +17,17 @@ class CardResponse {
 }
 
 @ObjectType({implements: [CardResponse]})
-export class DeleteCardResponse extends CardResponse {};
+export class DeleteCardResponse extends CardResponse {
+};
+
+@ObjectType({implements: [CardResponse]})
+export class UploadImageResponse extends CardResponse {
+    @Field(() => String)
+    imageUrl!: string;
+
+    @Field(() => String)
+    description!: string;
+};
 
 @InputType({description: 'Get all cards data'})
 export class GetAllCardsInput {
@@ -133,4 +144,28 @@ export class DeleteCardInput {
         message: 'Карточка с таким индетификатором не найдена'
     })
     cardId!: number;
+}
+
+@InputType({description: 'Upload image data'})
+export class UploadImageInput {
+    @Field(() => Int)
+    @OrganizationFound({
+        message: 'Организация с таким индетификатором не найдена'
+    })
+    orgId!: number;
+
+    @Field(() => Int)
+    @DeskFound({
+        message: 'Доска с таким индетификатором не найдена'
+    })
+    deskId!: number;
+
+    @Field(() => Int)
+    @CardFound({
+        message: 'Доска с таким индетификатором не найдена'
+    })
+    cardId!: number;
+
+    @Field(() => GraphQLUpload)
+    image!: FileUpload;
 }

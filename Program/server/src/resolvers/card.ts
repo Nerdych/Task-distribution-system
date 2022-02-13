@@ -1,5 +1,6 @@
 // Core
 import {Arg, Mutation, Resolver, UseMiddleware} from "type-graphql";
+import {FileUpload, GraphQLUpload} from "graphql-upload";
 
 // Service
 import CardService from "../service/CardService/CardService";
@@ -11,13 +12,20 @@ import {AuthMiddleware} from "../middleware/AuthMiddleware";
 import {RightDecorator} from "../decorators/RightDecorator";
 
 // Types
-import {DesksRights} from "../types";
+import {DesksRights, OrganizationRights} from "../types";
 
 // Models
 import {Card} from "../models/Card";
 
 // Args
-import {CreateCardInput, DeleteCardInput, DeleteCardResponse, UpdateCardInput} from "../service/CardService/agrs";
+import {
+    CreateCardInput,
+    DeleteCardInput,
+    DeleteCardResponse,
+    UpdateCardInput,
+    UploadImageInput, UploadImageResponse
+} from "../service/CardService/agrs";
+import FileService from "../service/FileService/FileService";
 
 @Resolver()
 export class CardResolver {
@@ -46,5 +54,12 @@ export class CardResolver {
     @RightDecorator({deskRights: [DesksRights.DELETE_CARD]})
     async deleteCard(@Arg('options') options: DeleteCardInput): Promise<DeleteCardResponse> {
         return CardService.delete(options);
+    }
+
+    @Mutation(() => UploadImageResponse)
+    @UseMiddleware(AuthMiddleware)
+    @RightDecorator({organizationRights: [OrganizationRights.UPDATE_DESK]})
+    async uploadImage(@Arg('options') options: UploadImageInput): Promise<UploadImageResponse> {
+        return CardService.uploadImage(options);
     }
 }

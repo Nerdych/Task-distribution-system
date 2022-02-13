@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, DataType, BelongsToMany, HasMany} from 'sequelize-typescript';
+import {Column, Table, Model, DataType, BelongsToMany, HasMany, ForeignKey} from 'sequelize-typescript';
 import {Field, ID, ObjectType} from "type-graphql";
 
 // Models
@@ -11,6 +11,7 @@ import {Organization} from "./Ogranization";
 import {UserOrganization} from "./UserOrganization";
 import {Message} from "./Message";
 import {Comment} from "./Comment";
+import {File} from "./File";
 
 interface UserCreationAttrs {
     name: string;
@@ -51,6 +52,10 @@ export class User extends Model<User, UserCreationAttrs> {
     @Field(() => Boolean)
     @Column({type: DataType.BOOLEAN, allowNull: false, defaultValue: false})
     is_activated!: boolean;
+
+    @ForeignKey(() => File)
+    @Column({type: DataType.INTEGER, unique: true})
+    file_id?: number
 
     @Column({type: DataType.TEXT, allowNull: false})
     password!: string;

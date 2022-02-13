@@ -1,5 +1,5 @@
 // Core
-import {Column, Table, Model, DataType, HasMany, BelongsToMany} from 'sequelize-typescript';
+import {Column, Table, Model, DataType, HasMany, BelongsToMany, ForeignKey} from 'sequelize-typescript';
 import {Field, ID, ObjectType} from "type-graphql";
 
 // Models
@@ -8,6 +8,7 @@ import {Label} from "./Label";
 import {UserOrganization} from "./UserOrganization";
 import {User} from "./User";
 import {Role} from "./Role";
+import {File} from "./File";
 
 interface OrganizationCreationAttrs {
     name: string;
@@ -28,6 +29,10 @@ export class Organization extends Model<Organization, OrganizationCreationAttrs>
     @Field(() => String, {nullable: true})
     @Column({type: DataType.TEXT, unique: true})
     link_to_invite?: string;
+
+    @ForeignKey(() => File)
+    @Column({type: DataType.INTEGER, unique: true})
+    file_id?: number
 
     @Field(() => [Desk], {nullable: true})
     @HasMany(() => Desk)

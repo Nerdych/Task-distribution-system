@@ -8,6 +8,7 @@ import {Organization} from './Ogranization';
 import {UserDesk} from "./UserDesk";
 import {User} from "./User";
 import {Message} from "./Message";
+import {File} from "./File";
 
 interface DeskCreationAttrs {
     name: string;
@@ -29,6 +30,10 @@ export class Desk extends Model<Desk, DeskCreationAttrs> {
     @ForeignKey(() => Organization)
     @Column({type: DataType.INTEGER, allowNull: false})
     organization_id!: number;
+
+    @ForeignKey(() => File)
+    @Column({type: DataType.INTEGER, unique: true})
+    file_id?: number
 
     @Field(() => Organization)
     @BelongsTo(() => Organization)
